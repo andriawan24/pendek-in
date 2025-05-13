@@ -1,9 +1,23 @@
+'use client';
+
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import LinkShortenerForm from '@/components/LinkShortenerForm';
+import { useState } from 'react';
 import Demo from '@/components/Demo';
-import RecentLinks from '@/components/RecentLinks';
+import LinkResultCard from '@/components/LinkResultCard';
+
+export type Link = {
+  id?: string;
+  created_at?: string;
+  slug: string;
+  url: string;
+  visits: number;
+};
 
 export default function Home() {
+  const [createdLinks, setCreatedLinks] = useState<Link | null>(null);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       <Header />
@@ -16,8 +30,15 @@ export default function Home() {
           </p>
         </section>
 
-        <Demo />
-        <RecentLinks />
+        <LinkShortenerForm onSuccess={(link: Link) => setCreatedLinks(link)} />
+
+        {createdLinks && (
+          <LinkResultCard
+            originalUrl={createdLinks.url}
+            shortUrl={`${process.env.NEXT_PUBLIC_BASE_URL}/${createdLinks.slug}`}
+          />
+        )}
+        {/* <RecentLinks /> */}
       </main>
 
       <Footer />

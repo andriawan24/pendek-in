@@ -49,13 +49,7 @@ const LinkResultCard = ({ originalUrl, shortUrl }: LinkResultCardProps) => {
 
         <div className="flex justify-between pt-4 border-t border-gray-100 dark:border-gray-700 mt-2">
           <button
-            className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-            aria-label="View statistics"
-          >
-            View Stats
-          </button>
-          <button
-            className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            className="cursor-pointer text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             aria-label="Share link"
           >
             Share

@@ -1,10 +1,13 @@
 'use client';
 
+import { Link } from '@/app/page';
 import { useState } from 'react';
 
-const LinkShortenerForm = () => {
+const LinkShortenerForm = ({ onSuccess }: { onSuccess: (link: Link) => void }) => {
   const [url, setUrl] = useState('');
   const [customAlias, setCustomAlias] = useState('');
+
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,32 +23,51 @@ const LinkShortenerForm = () => {
     setIsLoading(true);
 
     // Logic to handle form submission would go here
-    // For now, just simulate loading state
-    setTimeout(() => {
-      setIsLoading(false);
-      // Reset form after submission
-      setUrl('');
-      setCustomAlias('');
-    }, 1000);
+    const handleAddUrl = async () => {
+      const response = await fetch('/api/links', {
+        method: 'POST',
+        body: JSON.stringify({
+          full_url: url,
+          alias: customAlias === '' ? null : customAlias,
+        }),
+      });
+
+      if (response.ok) {
+        setIsLoading(false);
+        setUrl('');
+        setCustomAlias('');
+
+        const body = await response.json();
+        onSuccess({
+          url: body.url,
+          slug: body.slug,
+          visits: body.visits,
+        });
+      } else {
+        setError(await response.json());
+      }
+    };
+
+    handleAddUrl();
   };
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md transition-colors">
       <h2 className="text-2xl font-bold mb-6 text-center dark:text-white">Shorten Your Link</h2>
-
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="url" className="block text-sm font-medium mb-1 dark:text-gray-200">
-            Long URL
+            Enter your long URL
           </label>
           <input
+            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             type="url"
             id="url"
+            name="url"
             placeholder="https://example.com/very-long-url-that-needs-shortening"
             value={url}
-            onChange={handleUrlChange}
             required
-            className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            onChange={handleUrlChange}
           />
         </div>
 
@@ -70,6 +92,8 @@ const LinkShortenerForm = () => {
             Leave blank to generate a random short URL
           </p>
         </div>
+
+        {error && <p>{error}</p>}
 
         <button
           type="submit"

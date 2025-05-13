@@ -1,46 +1,36 @@
+'use client';
+
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-
-type LinkItem = {
-  id: string;
-  originalUrl: string;
-  shortUrl: string;
-  createdAt: string;
-  clicks: number;
-};
+import { useRouter } from 'next/navigation';
+import ButtonLink from 'next/link';
+import { useEffect, useState } from 'react';
+import { Link } from '../page';
 
 export default function LinksPage() {
-  // Dummy data - in a real app this would come from a database
-  const links: LinkItem[] = [
-    {
-      id: '1',
-      originalUrl: 'https://example.com/very-long-url-path-that-needs-shortening',
-      shortUrl: 'https://pendek.in/abc123',
-      createdAt: '2023-10-15',
-      clicks: 45,
-    },
-    {
-      id: '2',
-      originalUrl: 'https://another-example.com/blog/article/how-to-create-url-shortener',
-      shortUrl: 'https://pendek.in/def456',
-      createdAt: '2023-10-14',
-      clicks: 12,
-    },
-    {
-      id: '3',
-      originalUrl: 'https://github.com/user/repo/blob/main/very-long-filename-with-extension.ts',
-      shortUrl: 'https://pendek.in/ghi789',
-      createdAt: '2023-10-10',
-      clicks: 78,
-    },
-    {
-      id: '4',
-      originalUrl: 'https://docs.example.com/getting-started/installation/requirements',
-      shortUrl: 'https://pendek.in/docs',
-      createdAt: '2023-10-05',
-      clicks: 32,
-    },
-  ];
+  const [data, setData] = useState<Array<Link>>([]);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    setLoading(true);
+
+    const fetchData = async () => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/links`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        router.replace('/');
+      }
+
+      setLoading(false);
+      const body = await response.json();
+      setData(body.data);
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
@@ -55,12 +45,15 @@ export default function LinksPage() {
           <div className="p-4 border-b dark:border-gray-700 flex justify-between items-center">
             <div className="flex gap-2 items-center">
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                Total: {links.length} links
+                Total: {data.length} links
               </span>
             </div>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 text-sm rounded transition duration-200">
+            <ButtonLink
+              href="/"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 text-sm rounded transition duration-200"
+            >
               Create New Link
-            </button>
+            </ButtonLink>
           </div>
 
           <div className="overflow-x-auto">
@@ -91,39 +84,49 @@ export default function LinksPage() {
                   >
                     Clicks
                   </th>
-                  <th
+                  {/* <th
                     scope="col"
                     className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
                   >
                     Actions
-                  </th>
+                  </th> */}
                 </tr>
               </thead>
               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                {links.map(link => (
+                {loading && (
+                  <tr>
+                    <td className="px-6 py-4 text-center" rowSpan={5}>
+                      Loading...
+                    </td>
+                  </tr>
+                )}
+                {data.map((link: Link) => (
                   <tr key={link.id}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <a
-                        href={link.shortUrl}
+                        href={link.slug}
                         className="text-blue-600 dark:text-blue-400 hover:underline"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {link.shortUrl.replace('https://pendek.in/', '')}
+                        {link.slug}
                       </a>
                     </td>
                     <td className="px-6 py-4">
                       <p className="text-sm text-gray-900 dark:text-gray-200 truncate max-w-[200px]">
-                        {link.originalUrl}
+                        {link.url}
                       </p>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {link.createdAt}
+                      {new Intl.DateTimeFormat('en-US', {
+                        timeStyle: 'short',
+                        dateStyle: 'full',
+                      }).format(new Date(link.created_at ?? ''))}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      {link.clicks}
+                      {link.visits}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                       <div className="flex gap-2">
                         <button
                           className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
@@ -138,7 +141,7 @@ export default function LinksPage() {
                           Delete
                         </button>
                       </div>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>
