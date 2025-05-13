@@ -1,5 +1,4 @@
 import { supabase } from '@/lib/supabase';
-import { NextApiRequest } from 'next';
 import { NextRequest } from 'next/server';
 
 type LinkPayload = {
