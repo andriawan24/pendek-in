@@ -1,12 +1,11 @@
 import { supabase } from '@/lib/supabase';
 import { NextApiRequest } from 'next';
+import { NextRequest } from 'next/server';
 
-interface AddLinkApiRequest extends NextApiRequest {
-  json: () => Promise<{
-    full_url: string;
-    alias?: string;
-  }>;
-}
+type LinkPayload = {
+  full_url: string;
+  alias?: string;
+};
 
 export async function GET() {
   try {
@@ -17,9 +16,9 @@ export async function GET() {
   }
 }
 
-export async function POST(request: AddLinkApiRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { full_url, alias } = await request.json();
+    const { full_url, alias }: LinkPayload = await request.json();
 
     let slug = alias;
     if (!alias) {
