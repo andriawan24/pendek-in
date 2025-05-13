@@ -4,7 +4,6 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import LinkShortenerForm from '@/components/LinkShortenerForm';
 import { useState } from 'react';
-import Demo from '@/components/Demo';
 import LinkResultCard from '@/components/LinkResultCard';
 
 export type Link = {

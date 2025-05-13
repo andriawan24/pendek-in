@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+export async function generateMetadata() {
   return { title: 'Redirecting...' };
 }
 
