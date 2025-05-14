@@ -1,6 +1,6 @@
 'use client';
 
-import { Link } from '@/app/page';
+import { Link } from '@/app/(main)/page';
 import { useState } from 'react';
 
 const LinkShortenerForm = ({ onSuccess }: { onSuccess: (link: Link) => void }) => {
