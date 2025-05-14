@@ -77,7 +77,7 @@ const LinkShortenerForm = ({ onSuccess }: { onSuccess: (link: Link) => void }) =
           </label>
           <div className="flex items-center">
             <span className="bg-gray-100 dark:bg-gray-700 px-3 py-2 border dark:border-gray-600 border-r-0 rounded-l-md text-gray-500 dark:text-gray-300">
-              pendek.in/
+              {process.env.NEXT_PUBLIC_BASE_URL?.replace('https://', '').replace('http://', '')}/
             </span>
             <input
               type="text"
