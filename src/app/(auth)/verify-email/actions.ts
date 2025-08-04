@@ -18,7 +18,7 @@ export async function resendVerificationEmail(email: string): Promise<ResendEmai
     type: 'signup',
     email: email,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email/confirm`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email`,
     },
   });
 

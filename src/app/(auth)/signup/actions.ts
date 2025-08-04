@@ -39,7 +39,7 @@ export async function register(formData: FormData): Promise<RegisterResponse> {
       data: {
         name: request.name,
       },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email/confirm`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email`,
     },
   });
 
