@@ -26,6 +26,7 @@ export default function LoginPage() {
           }, 100);
         }
       } catch (error) {
+        console.error(error);
         toast.error('An error occurred during sign in');
       } finally {
         setIsLoading(false);

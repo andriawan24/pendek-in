@@ -11,7 +11,6 @@ export default function EmailVerificationAlert() {
   const [isResending, setIsResending] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
 
-  // Don't show if user is not logged in, email is verified, or alert is dismissed
   if (!user || isEmailVerified || !isVisible) {
     return null;
   }
@@ -28,6 +27,7 @@ export default function EmailVerificationAlert() {
         toast.success('Verification email sent! Please check your inbox.');
       }
     } catch (error) {
+      console.error(error);
       toast.error('Failed to resend verification email');
     } finally {
       setIsResending(false);

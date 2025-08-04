@@ -17,12 +17,12 @@ export default function ConfirmEmailPage() {
     const handleEmailConfirmation = async () => {
       try {
         const token_hash = searchParams?.get('token_hash');
-        const type = searchParams?.get('type');
+        // const type = searchParams?.get('type');
         const next = searchParams?.get('next') ?? '/';
 
-        if (token_hash && type) {
+        if (token_hash) {
           const { error } = await supabase.auth.verifyOtp({
-            type: type as any,
+            type: 'email',
             token_hash,
           });
 
@@ -33,7 +33,6 @@ export default function ConfirmEmailPage() {
           } else {
             setStatus('success');
             toast.success('Email verified successfully! Welcome to Pendek.in!');
-            // Redirect after a short delay to show success message
             setTimeout(() => {
               router.push(next);
             }, 2000);

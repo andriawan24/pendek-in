@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import ButtonLink from 'next/link';
 import { useEffect, useState } from 'react';
 import { LinkType } from '../page';
-import { useAuth } from '@/components/AuthProvider';
 
 export default function LinksPage() {
   const [data, setData] = useState<Array<LinkType>>([]);

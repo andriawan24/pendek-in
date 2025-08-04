@@ -25,6 +25,7 @@ export default function VerifyEmailPage() {
         toast.success('Verification email sent! Please check your inbox.');
       }
     } catch (error) {
+      console.error(error);
       toast.error('Failed to resend verification email');
     } finally {
       setIsResending(false);
@@ -61,8 +62,8 @@ export default function VerifyEmailPage() {
             Check your email
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            We've sent a verification link to your email address. Please click the link to verify
-            your account.
+            We&apos;ve sent a verification link to your email address. Please click the link to
+            verify your account.
           </p>
         </div>
 
@@ -84,8 +85,8 @@ export default function VerifyEmailPage() {
                 </h3>
                 <div className="mt-2 text-sm text-yellow-700 dark:text-yellow-300">
                   <p>
-                    You won't be able to access all features until you verify your email address. If
-                    you don't see the email, check your spam folder.
+                    You won&apos;t be able to access all features until you verify your email
+                    address. If you don&apos;t see the email, check your spam folder.
                   </p>
                 </div>
               </div>
@@ -94,7 +95,7 @@ export default function VerifyEmailPage() {
 
           <div className="mt-6">
             <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">
-              Didn't receive the email?
+              Didn&apos;t receive the email?
             </h3>
             <form onSubmit={handleResendEmail} className="space-y-4">
               <div>
