@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase.client';
+import { createClient } from '@/lib/supabase.server';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
@@ -6,6 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ slug: string }> }
 ): Promise<NextResponse> {
   try {
+    const supabase = await createClient();
     const { slug } = await params;
 
     const link = await supabase.from('links').select('*').eq('slug', slug).single();

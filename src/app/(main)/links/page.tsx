@@ -1,14 +1,13 @@
 'use client';
 
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
 import { useRouter } from 'next/navigation';
 import ButtonLink from 'next/link';
 import { useEffect, useState } from 'react';
-import { Link } from '../page';
+import { LinkType } from '../page';
+import { useAuth } from '@/components/AuthProvider';
 
 export default function LinksPage() {
-  const [data, setData] = useState<Array<Link>>([]);
+  const [data, setData] = useState<Array<LinkType>>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -25,8 +24,9 @@ export default function LinksPage() {
       }
 
       setLoading(false);
+
       const body = await response.json();
-      setData(body.data);
+      setData(body);
     };
 
     fetchData();
@@ -82,12 +82,6 @@ export default function LinksPage() {
                 >
                   Clicks
                 </th>
-                {/* <th
-                    scope="col"
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                  >
-                    Actions
-                  </th> */}
               </tr>
             </thead>
             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
@@ -98,7 +92,7 @@ export default function LinksPage() {
                   </td>
                 </tr>
               )}
-              {data.map((link: Link) => (
+              {data.map((link: LinkType) => (
                 <tr key={link.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <a
@@ -124,22 +118,6 @@ export default function LinksPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
                     {link.visits}
                   </td>
-                  {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                      <div className="flex gap-2">
-                        <button
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                          aria-label="Copy link"
-                        >
-                          Copy
-                        </button>
-                        <button
-                          className="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
-                          aria-label="Delete link"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td> */}
                 </tr>
               ))}
             </tbody>

@@ -1,14 +1,16 @@
 'use client';
 
-import { Link } from '@/app/(main)/page';
+import { LinkType } from '@/app/(main)/page';
 import { useState } from 'react';
+import { useAuth } from './AuthProvider';
 
-const LinkShortenerForm = ({ onSuccess }: { onSuccess: (link: Link) => void }) => {
+const LinkShortenerForm = ({ onSuccess }: { onSuccess: (link: LinkType) => void }) => {
   const [url, setUrl] = useState('');
   const [customAlias, setCustomAlias] = useState('');
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { user, isEmailVerified } = useAuth();
 
   const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUrl(e.target.value);
@@ -20,7 +22,15 @@ const LinkShortenerForm = ({ onSuccess }: { onSuccess: (link: Link) => void }) =
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check if user is verified before allowing link creation
+    if (!isEmailVerified) {
+      setError('Please verify your email address before creating links.');
+      return;
+    }
+
     setIsLoading(true);
+    setError('');
 
     // Logic to handle form submission would go here
     const handleAddUrl = async () => {
@@ -29,6 +39,7 @@ const LinkShortenerForm = ({ onSuccess }: { onSuccess: (link: Link) => void }) =
         body: JSON.stringify({
           full_url: url,
           alias: customAlias === '' ? null : customAlias,
+          user_id: user?.id,
         }),
       });
 
@@ -38,6 +49,7 @@ const LinkShortenerForm = ({ onSuccess }: { onSuccess: (link: Link) => void }) =
         setCustomAlias('');
 
         const body = await response.json();
+
         onSuccess({
           url: body.url,
           slug: body.slug,

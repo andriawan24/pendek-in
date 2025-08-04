@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import CustomThemeProvider from '@/components/CustomThemeProvider';
+import { AuthProvider } from '@/components/AuthProvider';
 import 'react-toastify/dist/ReactToastify.css';
 import './globals.css';
 import { ToastContainer } from 'react-toastify';
@@ -36,8 +37,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <ToastContainer theme="dark" />
+          <AuthProvider>
+            {children}
+            <ToastContainer theme="dark" />
+          </AuthProvider>
         </CustomThemeProvider>
       </body>
     </html>

@@ -1,14 +1,37 @@
-import { supabase } from '@/lib/supabase.client';
+import { createClient } from '@/lib/supabase.server';
 import { NextRequest } from 'next/server';
 
 type LinkPayload = {
   full_url: string;
   alias?: string;
+  user_id: string;
 };
 
 export async function GET() {
+  const supabase = await createClient();
+
   try {
-    const links = await supabase.from('links').select('*').order('visits', { ascending: false });
+    // Get the authenticated user
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return Response.json({ message: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Fetch links for the authenticated user only
+    const { data: links, error } = await supabase
+      .from('links')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('visits', { ascending: false });
+
+    if (error) {
+      return Response.json({ message: 'Failed to fetch links: ' + error.message }, { status: 500 });
+    }
+
     return Response.json(links, { status: 200 });
   } catch (e) {
     return Response.json({ message: 'Failed ' + e }, { status: 400 });
@@ -17,7 +40,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { full_url, alias }: LinkPayload = await request.json();
+    const supabase = await createClient();
+    const { full_url, alias, user_id }: LinkPayload = await request.json();
 
     let slug = alias;
     if (!alias) {
@@ -29,6 +53,7 @@ export async function POST(request: NextRequest) {
       .insert({
         url: full_url,
         slug: slug,
+        user_id: user_id,
       })
       .select()
       .single();

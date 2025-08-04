@@ -32,22 +32,28 @@ export async function register(formData: FormData): Promise<RegisterResponse> {
     };
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: request.email,
     password: request.password,
     options: {
       data: {
         name: request.name,
       },
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email/confirm`,
     },
   });
 
   if (error instanceof AuthApiError) {
     return { error: { general: 'Invalid credentials' } };
   } else if (error) {
-    return { error: { general: 'Failed to signed in ' + error.message } };
+    return { error: { general: 'Failed to register: ' + error.message } };
+  }
+
+  // If user already exists and is confirmed, show different message
+  if (data.user && data.user.email_confirmed_at) {
+    return { error: { general: 'User already exists with this email' } };
   }
 
   revalidatePath('/', 'layout');
-  redirect('/');
+  redirect('/verify-email');
 }
