@@ -19,6 +19,25 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Pendek.in - Personal URL Shortener',
   description: 'A simple, personal URL shortener to create short, memorable links',
+  keywords: ['url shortener', 'link shortener', 'pendek.in', 'short links'],
+  authors: [{ name: 'Pendek.in' }],
+  creator: 'Pendek.in',
+  publisher: 'Pendek.in',
+  icons: {
+    icon: [
+      { url: '/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
+  manifest: '/manifest.json',
+  themeColor: '#8b5a9b',
+  viewport: 'width=device-width, initial-scale=1',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Pendek.in',
+  },
 };
 
 export default function RootLayout({

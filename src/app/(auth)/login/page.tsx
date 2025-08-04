@@ -2,18 +2,33 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { login } from './actions';
 import { toast } from 'react-toastify';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const handleSubmit = (formData: FormData) => {
     const handleSignIn = async () => {
-      const response = await login(formData);
-      if (response.error) {
-        toast.error(response.error);
+      setIsLoading(true);
+      try {
+        const response = await login(formData);
+        if (response.error) {
+          toast.error(response.error);
+        } else if (response.success) {
+          toast.success('Successfully signed in!');
+          setTimeout(() => {
+            router.replace('/');
+          }, 100);
+        }
+      } catch (error) {
+        toast.error('An error occurred during sign in');
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -108,9 +123,17 @@ export default function LoginPage() {
             <button
               type="submit"
               formAction={handleSubmit}
-              className="group relative flex w-full justify-center rounded-md bg-blue-600 px-3 py-3 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-blue-500 dark:hover:bg-blue-400"
+              disabled={isLoading}
+              className="group relative flex w-full justify-center rounded-md bg-blue-600 px-3 py-3 text-sm font-semibold text-white hover:bg-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:bg-blue-500 dark:hover:bg-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign in
+              {isLoading ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Signing in...
+                </div>
+              ) : (
+                'Sign in'
+              )}
             </button>
           </div>
         </form>

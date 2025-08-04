@@ -2,12 +2,11 @@
 
 import { createClient } from '@/lib/supabase.server';
 import { AuthApiError, User } from '@supabase/supabase-js';
-import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 
 type LoginResponse = {
   error?: string;
   data?: User;
+  success?: boolean;
 };
 
 export async function login(formData: FormData): Promise<LoginResponse> {
@@ -18,14 +17,13 @@ export async function login(formData: FormData): Promise<LoginResponse> {
     password: formData.get('password') as string,
   };
 
-  const { error } = await supabase.auth.signInWithPassword(request);
+  const { data, error } = await supabase.auth.signInWithPassword(request);
 
   if (error instanceof AuthApiError) {
     return { error: 'Invalid credentials' };
   } else if (error) {
-    return { error: 'Failed to signed in ' + error.message };
+    return { error: 'Failed to sign in: ' + error.message };
   }
 
-  revalidatePath('/', 'layout');
-  redirect('/');
+  return { success: true, data: data.user };
 }
