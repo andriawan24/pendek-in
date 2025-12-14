@@ -1,0 +1,170 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  Menu,
+  Bell,
+  ChevronDown,
+  User,
+  LogOut,
+  Settings,
+  LogIn,
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { cn } from '@/lib/utils';
+
+interface TopBarProps {
+  onMenuClick: () => void;
+  pageTitle?: string;
+}
+
+export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const router = useRouter();
+  const profileDropdownRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isProfileOpen) return;
+
+    function onPointerDown(event: PointerEvent) {
+      const el = profileDropdownRef.current;
+      if (!el) return;
+
+      // Prefer composedPath() for better compatibility with nested elements.
+      const path =
+        typeof event.composedPath === 'function'
+          ? event.composedPath()
+          : undefined;
+      const clickedInside =
+        (path && path.includes(el)) ||
+        (event.target instanceof Node && el.contains(event.target));
+
+      if (!clickedInside) setIsProfileOpen(false);
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setIsProfileOpen(false);
+    }
+
+    // Capture phase so we close even if other handlers stopPropagation.
+    document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isProfileOpen]);
+
+  function handleSignOut() {
+    try {
+      localStorage.removeItem('trimBento.auth');
+    } catch {
+      // ignore
+    }
+    setIsProfileOpen(false);
+    router.replace('/sign-in');
+  }
+
+  return (
+    <header className="bg-charcoal sticky top-0 z-30 flex h-16 items-center justify-between border-b-2 border-zinc-700 px-4 lg:px-6">
+      {/* Left side */}
+      <div className="flex items-center gap-4">
+        {/* Mobile menu button */}
+        <button
+          onClick={onMenuClick}
+          className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white lg:hidden"
+        >
+          <Menu className="h-6 w-6" />
+        </button>
+
+        {/* Page title */}
+        <h1 className="text-lg font-bold tracking-wide text-white uppercase lg:text-xl">
+          {pageTitle}
+        </h1>
+      </div>
+
+      {/* Right side */}
+      <div className="flex items-center gap-3">
+        {/* Notifications */}
+        <button className="relative rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white">
+          <Bell className="h-5 w-5" />
+          <span className="bg-salmon absolute top-1.5 right-1.5 h-2 w-2 rounded-full" />
+        </button>
+
+        {/* Profile dropdown */}
+        <div ref={profileDropdownRef} className="relative">
+          <button
+            onClick={() => setIsProfileOpen(!isProfileOpen)}
+            className={cn(
+              'flex items-center gap-2 rounded-xl px-3 py-2 transition-colors',
+              isProfileOpen
+                ? 'bg-zinc-800 text-white'
+                : 'text-zinc-400 hover:bg-zinc-800 hover:text-white'
+            )}
+          >
+            <div className="bg-periwinkle text-charcoal flex h-8 w-8 items-center justify-center rounded-full">
+              <User className="h-4 w-4" />
+            </div>
+            <span className="hidden text-sm font-medium sm:block">
+              John Doe
+            </span>
+            <ChevronDown
+              className={cn(
+                'h-4 w-4 transition-transform',
+                isProfileOpen && 'rotate-180'
+              )}
+            />
+          </button>
+
+          {/* Dropdown menu */}
+          <AnimatePresence>
+            {isProfileOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.15 }}
+                className="shadow-neo-md absolute right-0 mt-2 w-48 rounded-xl border-2 border-zinc-700 bg-zinc-900 py-1"
+              >
+                <Link
+                  href="/dashboard/settings"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                >
+                  <User className="h-4 w-4" />
+                  Profile
+                </Link>
+                <Link
+                  href="/sign-in"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                >
+                  <LogIn className="h-4 w-4" />
+                  Sign in
+                </Link>
+                <Link
+                  href="/dashboard/settings"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Link>
+                <hr className="my-1 border-zinc-700" />
+                <button
+                  onClick={handleSignOut}
+                  className="text-salmon flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-zinc-800"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+    </header>
+  );
+}
