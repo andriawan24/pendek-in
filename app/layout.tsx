@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Space_Grotesk, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
+import { Providers } from '@/components/providers';
 import './globals.css';
 
 const spaceGrotesk = Space_Grotesk({
@@ -35,7 +36,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-charcoal min-h-screen">
-        {children}
+        <Providers>{children}</Providers>
         <Toaster
           theme="dark"
           position="top-right"

@@ -1,42 +1,77 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { GoogleSignInButton } from '@/components/auth/google-signin-button';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LegalLinksLine } from '@/components/legal/legal-links';
+import { useAuth, login, AuthApiError } from '@/lib/auth';
 
 function SignInPageInner() {
   const router = useRouter();
+  const { isAuthenticated, isLoading, refreshAuth } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [isLoading, isAuthenticated, router]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setIsSubmitting(true);
 
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !normalizedEmail.includes('@')) {
       setError('Please enter a valid email address.');
+      setIsSubmitting(false);
       return;
     }
     if (!password || password.length < 6) {
       setError('Password must be at least 6 characters.');
+      setIsSubmitting(false);
       return;
     }
 
     try {
+      await login({ email: normalizedEmail, password });
+      refreshAuth();
       router.replace('/dashboard');
     } catch (err) {
-      if (err instanceof Error) {
+      if (err instanceof AuthApiError) {
+        setError(err.message || 'Failed to sign in. Please try again.');
+      } else if (err instanceof Error) {
         setError(err.message || 'Failed to sign in. Please try again.');
       } else {
         setError('An unexpected error occurred. Please try again.');
       }
+    } finally {
+      setIsSubmitting(false);
     }
+  }
+
+  // Show loading while checking auth
+  if (isLoading) {
+    return (
+      <div className="w-full">
+        <div className="shadow-neo-md rounded-2xl border-2 border-zinc-700 bg-zinc-900 p-6 lg:p-8">
+          <p className="text-sm text-zinc-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render form if authenticated (will redirect)
+  if (isAuthenticated) {
+    return null;
   }
 
   return (
@@ -61,6 +96,7 @@ function SignInPageInner() {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={isSubmitting}
             />
 
             <Input
@@ -71,6 +107,7 @@ function SignInPageInner() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={isSubmitting}
             />
 
             {error && (
@@ -79,8 +116,8 @@ function SignInPageInner() {
               </div>
             )}
 
-            <Button type="submit" className="w-full">
-              Continue with email
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? 'Signing in...' : 'Continue with email'}
             </Button>
           </form>
 

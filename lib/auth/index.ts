@@ -17,8 +17,10 @@ export {
   refreshToken,
   getMe,
   withTokenRefresh,
+  logout,
   AuthApiError,
 } from './api';
 
 export { sessionManager, SessionManager } from './session';
 export { authConfig } from './config';
+export { AuthProvider, useAuth } from './auth-context';

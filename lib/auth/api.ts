@@ -50,7 +50,6 @@ async function apiRequest<T>(
         errorMessage = String(errorData.message);
       }
     } catch {
-      // If response is not JSON, use status text
       errorMessage = response.statusText || errorMessage;
     }
 
@@ -170,4 +169,12 @@ export async function withTokenRefresh<T>(
     }
     throw error;
   }
+}
+
+export async function logout(): Promise<void> {
+  // If backend supports token invalidation, call it here
+  // await apiRequest('/auth/logout', { method: 'POST' });
+
+  // Clear local session
+  sessionManager.clearSession();
 }

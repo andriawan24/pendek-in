@@ -101,6 +101,17 @@ class SessionManager {
       user,
     });
   }
+
+  isAuthenticated(): boolean {
+    const session = this.getSession();
+    if (!session?.tokens?.accessToken) return false;
+
+    if (this.isTokenExpired()) {
+      return false;
+    }
+
+    return true;
+  }
 }
 
 export const sessionManager = new SessionManager();
