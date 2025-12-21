@@ -1,7 +1,7 @@
 'use client';
 
-import { Suspense, useMemo, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { GoogleSignInButton } from '@/components/auth/google-signin-button';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -9,16 +9,9 @@ import { LegalLinksLine } from '@/components/legal/legal-links';
 
 function SignInPageInner() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const nextPath = useMemo(() => {
-    const next = searchParams.get('next');
-    return next && next.startsWith('/dashboard') ? next : '/dashboard';
-  }, [searchParams]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: React.FormEvent) {
@@ -35,18 +28,14 @@ function SignInPageInner() {
       return;
     }
 
-    setIsLoading(true);
     try {
-      // Simple client-side stub auth (replace with real backend later).
-      localStorage.setItem(
-        'trimBento.auth',
-        JSON.stringify({ email: normalizedEmail, createdAt: Date.now() })
-      );
-      router.replace(nextPath);
-    } catch {
-      setError('Unable to sign in on this device.');
-    } finally {
-      setIsLoading(false);
+      router.replace('/dashboard');
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || 'Failed to sign in. Please try again.');
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     }
   }
 
@@ -73,6 +62,7 @@ function SignInPageInner() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
+
             <Input
               id="password"
               label="Password"
@@ -89,7 +79,7 @@ function SignInPageInner() {
               </div>
             )}
 
-            <Button type="submit" isLoading={isLoading} className="w-full">
+            <Button type="submit" className="w-full">
               Continue with email
             </Button>
           </form>
@@ -106,10 +96,8 @@ function SignInPageInner() {
 
           <div className="rounded-xl border-2 border-zinc-700 bg-zinc-800 p-4">
             <p className="text-sm text-zinc-300">
-              Email/password is a{' '}
-              <span className="font-bold text-white">simple local stub</span>{' '}
-              for now (stored in your browser). Google OAuth will be wired up
-              later.
+              Sign in with your email and password. Google OAuth will be wired
+              up later.
             </p>
           </div>
 

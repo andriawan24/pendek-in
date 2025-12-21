@@ -3,15 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  Menu,
-  Bell,
-  ChevronDown,
-  User,
-  LogOut,
-  Settings,
-  LogIn,
-} from 'lucide-react';
+import { Menu, Bell, ChevronDown, User, LogOut, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
 
@@ -32,7 +24,6 @@ export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
       const el = profileDropdownRef.current;
       if (!el) return;
 
-      // Prefer composedPath() for better compatibility with nested elements.
       const path =
         typeof event.composedPath === 'function'
           ? event.composedPath()
@@ -48,30 +39,23 @@ export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
       if (event.key === 'Escape') setIsProfileOpen(false);
     }
 
-    // Capture phase so we close even if other handlers stopPropagation.
     document.addEventListener('pointerdown', onPointerDown, true);
     document.addEventListener('keydown', onKeyDown);
+
     return () => {
       document.removeEventListener('pointerdown', onPointerDown, true);
       document.removeEventListener('keydown', onKeyDown);
     };
   }, [isProfileOpen]);
 
-  function handleSignOut() {
-    try {
-      localStorage.removeItem('trimBento.auth');
-    } catch {
-      // ignore
-    }
+  async function handleSignOut() {
     setIsProfileOpen(false);
     router.replace('/sign-in');
   }
 
   return (
     <header className="bg-charcoal sticky top-0 z-30 flex h-16 items-center justify-between border-b-2 border-zinc-700 px-4 lg:px-6">
-      {/* Left side */}
       <div className="flex items-center gap-4">
-        {/* Mobile menu button */}
         <button
           onClick={onMenuClick}
           className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white lg:hidden"
@@ -79,21 +63,17 @@ export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
           <Menu className="h-6 w-6" />
         </button>
 
-        {/* Page title */}
         <h1 className="text-lg font-bold tracking-wide text-white uppercase lg:text-xl">
           {pageTitle}
         </h1>
       </div>
 
-      {/* Right side */}
       <div className="flex items-center gap-3">
-        {/* Notifications */}
         <button className="relative rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white">
           <Bell className="h-5 w-5" />
           <span className="bg-salmon absolute top-1.5 right-1.5 h-2 w-2 rounded-full" />
         </button>
 
-        {/* Profile dropdown */}
         <div ref={profileDropdownRef} className="relative">
           <button
             onClick={() => setIsProfileOpen(!isProfileOpen)}
@@ -136,14 +116,7 @@ export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
                   <User className="h-4 w-4" />
                   Profile
                 </Link>
-                <Link
-                  href="/sign-in"
-                  onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-zinc-400 hover:bg-zinc-800 hover:text-white"
-                >
-                  <LogIn className="h-4 w-4" />
-                  Sign in
-                </Link>
+
                 <Link
                   href="/dashboard/settings"
                   onClick={() => setIsProfileOpen(false)}

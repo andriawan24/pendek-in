@@ -1,15 +1,15 @@
+'use client';
+
 import Link from 'next/link';
 import { BarChart3, Link2, Scissors, Shield } from 'lucide-react';
 
 export default function LandingPage() {
   return (
     <div className="bg-charcoal relative min-h-screen">
-      {/* Subtle background blobs */}
       <div className="bg-electric-yellow/10 pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full blur-3xl" />
       <div className="bg-salmon/10 pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full blur-3xl" />
 
       <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col px-4">
-        {/* Top nav */}
         <header className="flex h-20 items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="bg-electric-yellow shadow-neo-sm flex h-10 w-10 items-center justify-center rounded-lg border-2 border-zinc-700">
@@ -21,12 +21,6 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link
-              href="/sign-in"
-              className="shadow-neo-md hover:shadow-neo-sm-hover inline-flex items-center justify-center rounded-xl border-2 border-zinc-700 bg-zinc-900 px-4 py-2.5 text-sm font-bold tracking-wide text-white uppercase transition-all duration-100 hover:bg-zinc-800"
-            >
-              Sign in
-            </Link>
             <Link
               href="/sign-in"
               className="bg-electric-yellow text-charcoal shadow-neo-md hover:shadow-neo-sm-hover inline-flex items-center justify-center rounded-xl border-2 border-zinc-700 px-4 py-2.5 text-sm font-bold tracking-wide uppercase transition-all duration-100"
@@ -54,19 +48,15 @@ export default function LandingPage() {
                   href="/sign-in"
                   className="bg-electric-yellow text-charcoal shadow-neo-md hover:shadow-neo-sm-hover inline-flex items-center justify-center rounded-xl border-2 border-zinc-700 px-6 py-3 font-bold tracking-wide uppercase transition-all duration-100"
                 >
-                  Sign in to continue
+                  Get started
                 </Link>
                 <Link
-                  href="/dashboard"
+                  href="/sign-in"
                   className="shadow-neo-md hover:shadow-neo-sm-hover inline-flex items-center justify-center rounded-xl border-2 border-zinc-700 bg-zinc-900 px-6 py-3 font-bold tracking-wide text-white uppercase transition-all duration-100 hover:bg-zinc-800"
                 >
-                  Open dashboard
+                  Sign in
                 </Link>
               </div>
-
-              <p className="mt-4 text-xs text-zinc-500">
-                Tip: Email/password sign-in is a simple local stub for now.
-              </p>
             </div>
 
             {/* Feature cards */}
@@ -122,9 +112,6 @@ export default function LandingPage() {
           <div className="flex items-center gap-4">
             <Link href="/sign-in" className="hover:text-white">
               Sign in
-            </Link>
-            <Link href="/dashboard" className="hover:text-white">
-              Dashboard
             </Link>
           </div>
         </footer>

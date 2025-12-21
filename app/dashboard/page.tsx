@@ -14,7 +14,6 @@ import { CreateLinkForm } from '@/components/dashboard/create-link-form';
 import { AnalyticsChart } from '@/components/dashboard/analytics-chart';
 import { RecentActivityList } from '@/components/dashboard/recent-activity-list';
 
-// Mock stats data - replace with actual data fetching later
 const mockStats = {
   totalClicks: 12453,
   activeLinks: 42,
@@ -29,7 +28,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Stats Row */}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Clicks"
@@ -50,15 +48,12 @@ export default function DashboardPage() {
           subtitle={`${mockStats.topLink.clicks.toLocaleString()} clicks`}
         />
 
-        {/* Create Link Card */}
         <BentoCard title="Create Link" icon={<Link2 className="h-4 w-4" />}>
           <CreateLinkForm />
         </BentoCard>
       </div>
 
-      {/* Main Content Row */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Analytics Chart */}
         <BentoCard
           title="Analytics Overview"
           icon={<BarChart3 className="h-4 w-4" />}
@@ -68,7 +63,6 @@ export default function DashboardPage() {
           <AnalyticsChart />
         </BentoCard>
 
-        {/* Recent Activity */}
         <BentoCard
           title="Recent Activity"
           icon={<Clock className="h-4 w-4" />}

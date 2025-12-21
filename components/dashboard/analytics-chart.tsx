@@ -37,20 +37,16 @@ export function AnalyticsChart() {
     const container = containerRef.current;
     const svg = d3.select(svgRef.current);
 
-    // Clear previous render
     svg.selectAll('*').remove();
 
-    // Get container dimensions
     const width = container.clientWidth;
     const height = container.clientHeight;
     const margin = { top: 20, right: 20, bottom: 30, left: 40 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    // Set SVG dimensions
     svg.attr('width', width).attr('height', height);
 
-    // Create scales
     const xScale = d3
       .scaleTime()
       .domain(d3.extent(data, (d) => d.date) as [Date, Date])
@@ -217,17 +213,10 @@ export function AnalyticsChart() {
     };
   }, [data]);
 
-  // Calculate total clicks for display
-  const totalClicks = data.reduce((sum, d) => sum + d.clicks, 0);
-
   return (
     <div className="flex h-full flex-col">
-      {/* Stats header */}
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <p className="text-2xl font-bold text-white">
-            {totalClicks.toLocaleString()}
-          </p>
           <p className="text-xs text-zinc-400">Total clicks (30 days)</p>
         </div>
         <div className="flex items-center gap-1 text-green-500">

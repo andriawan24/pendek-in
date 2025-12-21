@@ -8,12 +8,11 @@ import { User, Check } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function ProfileSection() {
-  const [name, setName] = useState('John Doe');
+  const [name, setName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
     setIsSaving(true);
-    // Mock save delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsSaving(false);
     toast.success('Profile updated!');
@@ -22,7 +21,6 @@ export function ProfileSection() {
   return (
     <BentoCard title="Profile" icon={<User className="h-4 w-4" />}>
       <div className="space-y-6">
-        {/* Avatar */}
         <div className="flex items-center gap-4">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800">
             <User className="h-8 w-8 text-zinc-500" />
@@ -32,7 +30,6 @@ export function ProfileSection() {
           </Button>
         </div>
 
-        {/* Name */}
         <Input
           label="Name"
           value={name}
