@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { Menu, Bell, ChevronDown, User, LogOut, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/lib/auth';
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -17,7 +16,6 @@ export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const router = useRouter();
   const profileDropdownRef = useRef<HTMLDivElement | null>(null);
-  const { user, signOut } = useAuth();
 
   useEffect(() => {
     if (!isProfileOpen) return;
@@ -52,7 +50,6 @@ export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
 
   function handleSignOut() {
     setIsProfileOpen(false);
-    signOut();
     router.replace('/sign-in');
   }
 
@@ -91,7 +88,7 @@ export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
               <User className="h-4 w-4" />
             </div>
             <span className="hidden text-sm font-medium sm:block">
-              {user?.name || user?.email || 'User'}
+              John Doe
             </span>
             <ChevronDown
               className={cn(

@@ -42,7 +42,6 @@ const mockRecentLinks: RecentLink[] = [
   },
 ];
 
-// Display only 3 items on dashboard
 const DISPLAY_LIMIT = 3;
 
 function truncateUrl(url: string, maxLength: number = 35): string {
@@ -103,7 +102,7 @@ export function RecentActivityList() {
                   {link.clicks}
                 </div>
                 <p className="text-xs text-zinc-500">
-                  {formatDistanceToNow(link.createdAt, { addSuffix: true })}
+                  {/* {formatDistanceToNow(link.createdAt, { addSuffix: true })} */}
                 </p>
               </div>
             </button>

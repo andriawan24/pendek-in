@@ -49,9 +49,8 @@ export function ApiKeysSection() {
 
   return (
     <BentoCard title="API Keys" icon={<Key className="h-4 w-4" />}>
-      {/* Mock Feature Notice */}
       <div className="mb-6 flex items-center gap-2 rounded-lg bg-zinc-800 p-3 text-sm">
-        <AlertCircle className="text-electric-yellow h-4 w-4 flex-shrink-0" />
+        <AlertCircle className="text-electric-yellow h-4 w-4 shrink-0" />
         <span className="text-zinc-400">
           API functionality coming soon. Keys generated here are for preview
           only.

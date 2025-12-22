@@ -1,31 +1,23 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { GoogleSignInButton } from '@/components/auth/google-signin-button';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LegalLinksLine } from '@/components/legal/legal-links';
-import { useAuth, login, AuthApiError } from '@/lib/auth';
 
 function SignInPageInner() {
   const router = useRouter();
-  const { isAuthenticated, isLoading, refreshAuth } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.replace('/dashboard');
-    }
-  }, [isLoading, isAuthenticated, router]);
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+
     setError(null);
     setIsSubmitting(true);
 
@@ -42,36 +34,12 @@ function SignInPageInner() {
     }
 
     try {
-      await login({ email: normalizedEmail, password });
-      refreshAuth();
       router.replace('/dashboard');
     } catch (err) {
-      if (err instanceof AuthApiError) {
-        setError(err.message || 'Failed to sign in. Please try again.');
-      } else if (err instanceof Error) {
-        setError(err.message || 'Failed to sign in. Please try again.');
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
-  }
-
-  // Show loading while checking auth
-  if (isLoading) {
-    return (
-      <div className="w-full">
-        <div className="shadow-neo-md rounded-2xl border-2 border-zinc-700 bg-zinc-900 p-6 lg:p-8">
-          <p className="text-sm text-zinc-400">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Don't render form if authenticated (will redirect)
-  if (isAuthenticated) {
-    return null;
   }
 
   return (
@@ -130,13 +98,6 @@ function SignInPageInner() {
           </div>
 
           <GoogleSignInButton />
-
-          <div className="rounded-xl border-2 border-zinc-700 bg-zinc-800 p-4">
-            <p className="text-sm text-zinc-300">
-              Sign in with your email and password. Google OAuth will be wired
-              up later.
-            </p>
-          </div>
 
           <LegalLinksLine />
         </div>
