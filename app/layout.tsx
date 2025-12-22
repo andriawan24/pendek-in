@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Space_Grotesk, Inter } from 'next/font/google';
 import { Toaster } from 'sonner';
 import './globals.css';
+import { AuthProvider } from '@/lib/auth';
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -35,7 +36,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="bg-charcoal min-h-screen">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
 
         <Toaster
           theme="dark"

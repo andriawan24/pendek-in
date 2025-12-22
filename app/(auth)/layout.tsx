@@ -1,8 +1,23 @@
+'use client';
+
+import { useAuth } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace('/dashboard');
+    }
+  }, [isAuthenticated, router]);
+
   return (
     <div className="bg-charcoal relative min-h-dvh w-full overflow-x-hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">

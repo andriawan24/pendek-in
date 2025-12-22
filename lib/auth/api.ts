@@ -95,6 +95,7 @@ export async function login<T extends LoginRequestBody = LoginRequestBody>(
     },
     user: response.data.user,
   };
+
   sessionManager.saveSession(authSession);
 
   return authSession;

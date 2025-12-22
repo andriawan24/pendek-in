@@ -1,15 +1,29 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import { BentoCard } from '@/components/ui/bento-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { User, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '@/lib/auth';
 
 export function ProfileSection() {
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const { user } = useAuth();
+
+  const setupProfile = useEffectEvent(() => {
+    setName(user?.name ?? '');
+    setEmail(user?.email ?? '');
+    setIsVerified(user?.is_verified === true);
+  });
+
+  useEffect(() => {
+    setupProfile();
+  }, [user]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -25,6 +39,7 @@ export function ProfileSection() {
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800">
             <User className="h-8 w-8 text-zinc-500" />
           </div>
+
           <Button variant="outline" size="sm">
             Change Avatar
           </Button>
@@ -36,20 +51,20 @@ export function ProfileSection() {
           onChange={(e) => setName(e.target.value)}
         />
 
-        {/* Email (read-only) */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-zinc-400">
             Email
           </label>
           <div className="flex items-center gap-2">
-            <span className="text-white">john@example.com</span>
-            <span className="flex items-center gap-1 text-xs text-green-500">
-              <Check className="h-3 w-3" /> Verified
-            </span>
+            <span className="text-white">{email}</span>
+            {isVerified && (
+              <span className="flex items-center gap-1 text-xs text-green-500">
+                <Check className="h-3 w-3" /> Verified
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Save Button */}
         <Button onClick={handleSave} isLoading={isSaving}>
           Save Changes
         </Button>

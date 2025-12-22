@@ -1,44 +1,51 @@
 'use client';
 
 import { Suspense, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { GoogleSignInButton } from '@/components/auth/google-signin-button';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LegalLinksLine } from '@/components/legal/legal-links';
+import { useAuth } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 
 function SignInPageInner() {
   const router = useRouter();
-
+  const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login } = useAuth();
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     setError(null);
-    setIsSubmitting(true);
+    setIsLoading(true);
 
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !normalizedEmail.includes('@')) {
       setError('Please enter a valid email address.');
-      setIsSubmitting(false);
+      setIsLoading(false);
       return;
     }
     if (!password || password.length < 6) {
       setError('Password must be at least 6 characters.');
-      setIsSubmitting(false);
+      setIsLoading(false);
       return;
     }
 
     try {
+      await login({
+        email,
+        password,
+      });
+
       router.replace('/dashboard');
     } catch (err) {
+      console.log(err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   }
 
@@ -64,7 +71,7 @@ function SignInPageInner() {
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              disabled={isSubmitting}
+              disabled={isLoading}
             />
 
             <Input
@@ -75,7 +82,7 @@ function SignInPageInner() {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              disabled={isSubmitting}
+              disabled={isLoading}
             />
 
             {error && (
@@ -84,8 +91,8 @@ function SignInPageInner() {
               </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Signing in...' : 'Continue with email'}
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Continue with email'}
             </Button>
           </form>
 
@@ -98,7 +105,6 @@ function SignInPageInner() {
           </div>
 
           <GoogleSignInButton />
-
           <LegalLinksLine />
         </div>
       </div>

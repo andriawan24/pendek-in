@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { use, useEffect, useEffectEvent, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu, Bell, ChevronDown, User, LogOut, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/lib/auth';
 
 interface TopBarProps {
   onMenuClick: () => void;
@@ -16,6 +17,16 @@ export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const router = useRouter();
   const profileDropdownRef = useRef<HTMLDivElement | null>(null);
+  const { user, logout } = useAuth();
+  const [name, setName] = useState('');
+
+  const setupProfile = useEffectEvent(() => {
+    setName(user?.name ?? '');
+  });
+
+  useEffect(() => {
+    setupProfile();
+  }, [user]);
 
   useEffect(() => {
     if (!isProfileOpen) return;
@@ -50,6 +61,7 @@ export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
 
   function handleSignOut() {
     setIsProfileOpen(false);
+    logout();
     router.replace('/sign-in');
   }
 
@@ -87,9 +99,7 @@ export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
             <div className="bg-periwinkle text-charcoal flex h-8 w-8 items-center justify-center rounded-full">
               <User className="h-4 w-4" />
             </div>
-            <span className="hidden text-sm font-medium sm:block">
-              John Doe
-            </span>
+            <span className="hidden text-sm font-medium sm:block">{name}</span>
             <ChevronDown
               className={cn(
                 'h-4 w-4 transition-transform',

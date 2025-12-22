@@ -9,6 +9,7 @@ export interface AuthUser {
   id: string;
   email: string;
   name?: string;
+  is_verified?: boolean;
 }
 
 export interface AuthSession {

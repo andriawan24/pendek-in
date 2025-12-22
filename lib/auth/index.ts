@@ -23,3 +23,4 @@ export {
 
 export { sessionManager, SessionManager } from './session';
 export { authConfig } from './config';
+export { AuthProvider, useAuth } from './provider';
