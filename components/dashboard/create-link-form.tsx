@@ -5,6 +5,7 @@ import { Link2, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { createLink } from '@/lib/links/api';
 
 export function CreateLinkForm() {
   const [url, setUrl] = useState('');
@@ -20,7 +21,6 @@ export function CreateLinkForm() {
       return;
     }
 
-    // Basic URL validation
     try {
       new URL(url.startsWith('http') ? url : `https://${url}`);
     } catch {
@@ -30,26 +30,26 @@ export function CreateLinkForm() {
 
     setIsLoading(true);
 
-    // Simulate API call - replace with actual API call later
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      const response = await createLink({
+        original_url: url,
+      });
 
-    // Generate mock shortened URL
-    const shortCode = Math.random().toString(36).substring(2, 8);
-    const newShortenedUrl = `trimbento.com/${shortCode}`;
-    setShortenedUrl(newShortenedUrl);
+      const newShortenedUrl = `localhost:8080/${response.short_code}`;
+      setShortenedUrl(newShortenedUrl);
 
-    // Auto-copy to clipboard
-    await navigator.clipboard.writeText(`https://${newShortenedUrl}`);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+      toast.success('Link shortened!');
 
-    toast.success('Link shortened and copied to clipboard!');
-    setIsLoading(false);
-    setUrl('');
+      setIsLoading(false);
+      setUrl('');
+    } catch (error) {
+      setIsLoading(false);
+      toast.error('Failed to generate shortened link: ' + error);
+    }
   };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(`https://${shortenedUrl}`);
+    await navigator.clipboard.writeText(`http://${shortenedUrl}`);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
     toast.success('Copied to clipboard!');
@@ -85,7 +85,7 @@ export function CreateLinkForm() {
       {shortenedUrl && (
         <div className="mt-4 flex items-center gap-2 rounded-xl border-2 border-zinc-700 bg-zinc-800 p-3">
           <span className="text-periwinkle flex-1 truncate">
-            https://{shortenedUrl}
+            http://{shortenedUrl}
           </span>
           <button
             onClick={handleCopy}

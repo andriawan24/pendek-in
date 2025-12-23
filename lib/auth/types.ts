@@ -48,11 +48,6 @@ export interface MeResponse {
   user: AuthUser;
 }
 
-export interface BaseResponse<T> {
-  message: string;
-  data: T;
-}
-
 export class AuthError extends Error {
   constructor(
     message: string,
