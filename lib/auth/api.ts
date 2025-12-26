@@ -110,7 +110,6 @@ export async function withTokenRefresh<T>(
 }
 
 export async function logout(): Promise<void> {
-  // If backend supports token invalidation, call it here
   // await apiRequest('/auth/logout', { method: 'POST' });
 
   // Clear local session

@@ -11,4 +11,5 @@ export interface LinkResponse {
   custom_short_code?: string;
   expired_at?: string;
   click_count?: number;
+  created_at: string;
 }

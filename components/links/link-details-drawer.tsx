@@ -20,17 +20,10 @@ import { toast } from 'sonner';
 import { formatDistanceToNow, format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
-interface Link {
-  id: string;
-  shortCode: string;
-  originalUrl: string;
-  clicks: number;
-  createdAt: Date;
-}
+import { LinkResponse } from '@/lib/links/types';
 
 interface LinkDetailsDrawerProps {
-  link: Link | null;
+  link: LinkResponse | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -59,7 +52,6 @@ export function LinkDetailsDrawer({
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Lock background scroll when drawer is open
   useEffect(() => {
     if (!isOpen) return;
 
@@ -96,7 +88,7 @@ export function LinkDetailsDrawer({
   // Generate QR code when link changes
   useEffect(() => {
     if (link && canvasRef.current) {
-      const fullUrl = `https://trimbento.com/${link.shortCode}`;
+      const fullUrl = `http://localhost:8080/${link.short_code}`;
       QRCode.toCanvas(
         canvasRef.current,
         fullUrl,
@@ -128,7 +120,7 @@ export function LinkDetailsDrawer({
   const handleCopy = async () => {
     if (!link) return;
     await navigator.clipboard.writeText(
-      `https://trimbento.com/${link.shortCode}`
+      `https://trimbento.com/${link.short_code}`
     );
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
@@ -139,7 +131,7 @@ export function LinkDetailsDrawer({
     if (!qrCodeUrl || !link) return;
     const a = document.createElement('a');
     a.href = qrCodeUrl;
-    a.download = `qr-${link.shortCode}.png`;
+    a.download = `qr-${link.short_code}.png`;
     a.click();
     toast.success('QR code downloaded!');
   };
@@ -151,7 +143,7 @@ export function LinkDetailsDrawer({
 
   if (!link) return null;
 
-  const fullUrl = `https://trimbento.com/${link.shortCode}`;
+  const fullUrl = `https://trimbento.com/${link.short_code}`;
 
   return (
     <AnimatePresence>
@@ -230,7 +222,7 @@ export function LinkDetailsDrawer({
                     Original URL
                   </label>
                   <p className="text-sm break-all text-zinc-300">
-                    {link.originalUrl}
+                    {link.original_url}
                   </p>
                 </div>
 
@@ -264,7 +256,7 @@ export function LinkDetailsDrawer({
                         <span className="text-xs uppercase">Total Clicks</span>
                       </div>
                       <p className="mt-1 text-2xl font-bold text-white">
-                        {link.clicks.toLocaleString()}
+                        {link.click_count?.toLocaleString()}
                       </p>
                     </div>
                     <div className="rounded-xl border-2 border-zinc-700 bg-zinc-800 p-4">
@@ -272,14 +264,14 @@ export function LinkDetailsDrawer({
                         <Calendar className="h-4 w-4" />
                         <span className="text-xs uppercase">Created</span>
                       </div>
-                      <p className="mt-1 text-sm font-bold text-white">
+                      {/* <p className="mt-1 text-sm font-bold text-white">
                         {format(link.createdAt, 'MMM d, yyyy')}
                       </p>
                       <p className="text-xs text-zinc-500">
                         {formatDistanceToNow(link.createdAt, {
                           addSuffix: true,
                         })}
-                      </p>
+                      </p> */}
                     </div>
                   </div>
                 </div>

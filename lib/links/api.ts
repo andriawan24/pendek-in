@@ -14,3 +14,14 @@ export async function createLink(
 
   return response.data;
 }
+
+export async function getLinks(): Promise<LinkResponse[]> {
+  const response = await authenticatedRequest<BaseResponse<LinkResponse[]>>(
+    '/links/all',
+    {
+      method: 'GET',
+    }
+  );
+
+  return response.data;
+}

@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { BentoCard } from '@/components/ui/bento-card';
 import { StatCard } from '@/components/dashboard/stat-card';
-import { CreateLinkForm } from '@/components/dashboard/create-link-form';
 import { AnalyticsChart } from '@/components/dashboard/analytics-chart';
 import { RecentActivityList } from '@/components/dashboard/recent-activity-list';
 
@@ -48,10 +47,6 @@ export default function DashboardPage() {
           subtitle={`${mockStats.topLink.clicks.toLocaleString()} clicks`}
         />
       </div>
-
-      <BentoCard title="Create Link" icon={<Link2 className="h-4 w-4" />}>
-        <CreateLinkForm />
-      </BentoCard>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <BentoCard

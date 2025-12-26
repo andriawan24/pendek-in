@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 import {
   Link2,
   Search,
@@ -9,81 +9,52 @@ import {
   ExternalLink,
   MoreVertical,
   MousePointerClick,
+  Plus,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { formatDistanceToNow } from 'date-fns';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LinkDetailsDrawer } from '@/components/links/link-details-drawer';
+import { LinkResponse } from '@/lib/links/types';
+import { getLinks } from '@/lib/links/api';
+import { useNewLink } from '@/lib/links/new-link-context';
+import { formatDistanceToNow } from 'date-fns';
 
-interface Link {
-  id: string;
-  shortCode: string;
-  originalUrl: string;
-  clicks: number;
-  createdAt: Date;
-}
-
-// Mock data
-const mockLinks: Link[] = [
-  {
-    id: '1',
-    shortCode: 'abc123',
-    originalUrl: 'https://example.com/very-long-url-that-needs-shortening',
-    clicks: 142,
-    createdAt: new Date(Date.now() - 1000 * 60 * 30),
-  },
-  {
-    id: '2',
-    shortCode: 'xyz789',
-    originalUrl: 'https://github.com/user/repository',
-    clicks: 87,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
-  },
-  {
-    id: '3',
-    shortCode: 'def456',
-    originalUrl: 'https://docs.google.com/document/d/1234567890',
-    clicks: 56,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
-  },
-  {
-    id: '4',
-    shortCode: 'ghi321',
-    originalUrl: 'https://medium.com/article/how-to-build-great-products',
-    clicks: 34,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-  },
-  {
-    id: '5',
-    shortCode: 'jkl654',
-    originalUrl: 'https://youtube.com/watch?v=dQw4w9WgXcQ',
-    clicks: 21,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
-  },
-  {
-    id: '6',
-    shortCode: 'mno987',
-    originalUrl: 'https://twitter.com/user/status/123456789',
-    clicks: 15,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72),
-  },
-];
-
-export default function LinksPage() {
+export default function LinksPage(): React.ReactNode {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLink, setSelectedLink] = useState<Link | null>(null);
+  const [selectedLink, setSelectedLink] = useState<LinkResponse | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [links, setLinks] = useState<LinkResponse[]>([]);
+  const { openNewLinkDrawer, onLinkCreated } = useNewLink();
 
-  const filteredLinks = mockLinks.filter(
+  const fetchLinks = useEffectEvent(async () => {
+    try {
+      const response = await getLinks();
+      setLinks(response);
+    } catch {}
+  });
+
+  useEffect(() => {
+    fetchLinks();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = onLinkCreated(() => {
+      fetchLinks();
+    });
+    return unsubscribe;
+  }, [onLinkCreated]);
+
+  const filteredLinks = links.filter(
     (link) =>
-      link.shortCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      link.originalUrl.toLowerCase().includes(searchQuery.toLowerCase())
+      link.short_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      link.original_url.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      link.custom_short_code?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCopy = async (link: Link) => {
+  const handleCopy = async (link: LinkResponse) => {
     await navigator.clipboard.writeText(
-      `https://trimbento.com/${link.shortCode}`
+      `http://localhost:8080/${link.short_code}`
     );
     setCopiedId(link.id);
     setTimeout(() => setCopiedId(null), 2000);
@@ -102,8 +73,8 @@ export default function LinksPage() {
             Manage and track all your shortened links
           </p>
         </div>
-        <Button variant="primary" size="md">
-          <Link2 className="h-4 w-4" />
+        <Button variant="primary" size="md" onClick={openNewLinkDrawer}>
+          <Plus className="h-4 w-4" />
           New Link
         </Button>
       </div>
@@ -160,17 +131,19 @@ export default function LinksPage() {
                   <div className="sm:hidden">
                     <div className="mb-2 flex items-center justify-between">
                       <span className="text-electric-yellow font-mono text-sm font-medium">
-                        trimbento.com/{link.shortCode}
+                        localhost:8080/{link.short_code}
                       </span>
                       <div className="flex items-center gap-1 text-sm text-zinc-400">
-                        {link.clicks}
+                        {link.click_count}
                       </div>
                     </div>
                     <p className="truncate text-xs text-zinc-400">
-                      {link.originalUrl}
+                      {link.original_url}
                     </p>
                     <p className="mt-1 text-xs text-zinc-500">
-                      {formatDistanceToNow(link.createdAt, { addSuffix: true })}
+                      {formatDistanceToNow(link.created_at, {
+                        addSuffix: true,
+                      })}
                     </p>
                   </div>
 
@@ -182,7 +155,7 @@ export default function LinksPage() {
                       </div>
                       <div className="min-w-0">
                         <span className="text-electric-yellow font-mono text-sm font-medium">
-                          /{link.shortCode}
+                          /{link.short_code}
                         </span>
                       </div>
                       <button
@@ -202,7 +175,7 @@ export default function LinksPage() {
 
                     <div className="col-span-4 flex min-w-0 items-center gap-2">
                       <p className="truncate text-sm text-zinc-400">
-                        {link.originalUrl}
+                        {link.original_url}
                       </p>
                       <ExternalLink className="h-3 w-3 shrink-0 text-zinc-500" />
                     </div>
@@ -210,25 +183,24 @@ export default function LinksPage() {
                     <div className="col-span-2">
                       <div className="flex items-center gap-1 text-sm text-white">
                         <MousePointerClick className="h-4 w-4 text-zinc-400" />
-                        {link.clicks.toLocaleString()}
+                        {link.click_count?.toLocaleString()}
                       </div>
                     </div>
 
                     <div className="col-span-2 flex items-center justify-between">
                       <span className="text-sm text-zinc-400">
-                        {formatDistanceToNow(link.createdAt, {
+                        {formatDistanceToNow(new Date(link.created_at), {
                           addSuffix: true,
                         })}
                       </span>
-                      <button
+                      {/* <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          // Handle menu
                         }}
                         className="rounded p-1 text-zinc-500 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-zinc-700 hover:text-white"
                       >
                         <MoreVertical className="h-4 w-4" />
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </div>

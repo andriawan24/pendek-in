@@ -18,7 +18,6 @@ export {
   getMe,
   withTokenRefresh,
   logout,
-  AuthApiError,
 } from './api';
 
 export { sessionManager, SessionManager } from './session';

@@ -10,7 +10,9 @@ import {
   Settings,
   X,
   Scissors,
+  Plus,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const navItems = [
@@ -23,9 +25,10 @@ const navItems = [
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  onNewLink?: () => void;
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({ isOpen, onClose, onNewLink }: SidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -41,6 +44,19 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             <span className="text-xl font-bold tracking-tight text-white uppercase">
               TrimBento
             </span>
+          </div>
+
+          {/* New Link Button */}
+          <div className="px-3 pt-4">
+            <Button
+              variant="primary"
+              size="md"
+              className="w-full"
+              onClick={onNewLink}
+            >
+              <Plus className="h-4 w-4" />
+              New Link
+            </Button>
           </div>
 
           {/* Navigation */}
@@ -122,6 +138,19 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                   >
                     <X className="h-5 w-5" />
                   </button>
+                </div>
+
+                {/* New Link Button */}
+                <div className="px-3 pt-4">
+                  <Button
+                    variant="primary"
+                    size="md"
+                    className="w-full"
+                    onClick={onNewLink}
+                  >
+                    <Plus className="h-4 w-4" />
+                    New Link
+                  </Button>
                 </div>
 
                 {/* Navigation */}

@@ -9,13 +9,14 @@ import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
-function SignInPageInner() {
+function SignUpPageInner() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { login } = useAuth();
+  const { register } = useAuth();
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -23,12 +24,20 @@ function SignInPageInner() {
     setError(null);
     setIsLoading(true);
 
+    const trimmedName = name.trim();
+    if (!trimmedName || trimmedName.length < 2) {
+      setError('Please enter your name (at least 2 characters).');
+      setIsLoading(false);
+      return;
+    }
+
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !normalizedEmail.includes('@')) {
       setError('Please enter a valid email address.');
       setIsLoading(false);
       return;
     }
+
     if (!password || password.length < 6) {
       setError('Password must be at least 6 characters.');
       setIsLoading(false);
@@ -36,8 +45,9 @@ function SignInPageInner() {
     }
 
     try {
-      await login({
-        email,
+      await register({
+        name: trimmedName,
+        email: normalizedEmail,
         password,
       });
 
@@ -55,15 +65,26 @@ function SignInPageInner() {
       <div className="shadow-neo-md rounded-2xl border-2 border-zinc-700 bg-zinc-900 p-6 lg:p-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-wide text-white uppercase">
-            Sign in
+            Sign up
           </h1>
           <p className="mt-2 text-sm text-zinc-400">
-            Sign in to manage your links and view analytics.
+            Create an account to start shortening links.
           </p>
         </div>
 
         <div className="space-y-4">
           <form onSubmit={onSubmit} className="space-y-3">
+            <Input
+              id="name"
+              label="Name"
+              type="text"
+              autoComplete="name"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={isLoading}
+            />
+
             <Input
               id="email"
               label="Email"
@@ -79,7 +100,7 @@ function SignInPageInner() {
               id="password"
               label="Password"
               type="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -93,7 +114,7 @@ function SignInPageInner() {
             )}
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Signing in...' : 'Continue with email'}
+              {isLoading ? 'Creating account...' : 'Create account'}
             </Button>
           </form>
 
@@ -108,12 +129,12 @@ function SignInPageInner() {
           <GoogleSignInButton />
 
           <p className="text-center text-sm text-zinc-400">
-            Don&apos;t have an account?{' '}
+            Already have an account?{' '}
             <Link
-              href="/sign-up"
+              href="/sign-in"
               className="text-electric-yellow hover:underline"
             >
-              Sign up
+              Sign in
             </Link>
           </p>
 
@@ -124,7 +145,7 @@ function SignInPageInner() {
   );
 }
 
-export default function SignInPage() {
+export default function SignUpPage() {
   return (
     <Suspense
       fallback={
@@ -135,7 +156,7 @@ export default function SignInPage() {
         </div>
       }
     >
-      <SignInPageInner />
+      <SignUpPageInner />
     </Suspense>
   );
 }
