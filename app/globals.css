@@ -1,26 +1,430 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
+@theme {
+  /* Custom Colors */
+  --color-charcoal: #0a0a0a;
+  --color-charcoal-light: #141414;
+  --color-charcoal-medium: #1a1a1a;
+  --color-salmon: #ff6b6b;
+  --color-salmon-dark: #e55555;
+  --color-periwinkle: #a5b4fc;
+  --color-periwinkle-dark: #818cf8;
+  --color-electric-yellow: #e4ff1a;
+  --color-electric-yellow-dark: #c9e000;
+  --color-cyan: #22d3ee;
+  --color-hot-pink: #f472b6;
+
+  /* Typography */
+  --font-display: var(--font-space-grotesk);
+  --font-mono: var(--font-jetbrains-mono);
+
+  /* Neo-Brutalist Shadows */
+  --shadow-neo-sm: 3px 3px 0 0 #27272a;
+  --shadow-neo-md: 5px 5px 0 0 #27272a;
+  --shadow-neo-lg: 8px 8px 0 0 #27272a;
+  --shadow-neo-xl: 12px 12px 0 0 #27272a;
+
+  /* Shadow hover states (reduced) */
+  --shadow-neo-sm-hover: 1px 1px 0 0 #27272a;
+  --shadow-neo-md-hover: 2px 2px 0 0 #27272a;
+  --shadow-neo-lg-hover: 4px 4px 0 0 #27272a;
+
+  /* Glow effects */
+  --shadow-glow-yellow: 0 0 30px rgba(228, 255, 26, 0.3);
+  --shadow-glow-cyan: 0 0 30px rgba(34, 211, 238, 0.3);
+  --shadow-glow-pink: 0 0 30px rgba(244, 114, 182, 0.3);
+}
+
+/* Force dark mode */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  color-scheme: dark;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-charcoal);
+  color: white;
+  font-family: var(--font-mono), ui-monospace, monospace;
+}
+
+/* Consistent pointer cursor for interactive elements */
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  cursor: pointer;
+}
+
+/* Heading styles - Space Grotesk UPPERCASE */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+/* Scrollbar styling for dark mode */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-charcoal);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+/* Selection styling */
+::selection {
+  background-color: var(--color-electric-yellow);
+  color: var(--color-charcoal);
+}
+
+/* Grain overlay effect */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* Animations */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(228, 255, 26, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(228, 255, 26, 0.4);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes typewriter {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes count-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(100vh);
+  }
+}
+
+/* Animation utilities */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.6s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.6s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.6s ease-out forwards;
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 3s ease infinite;
+}
+
+/* Stagger delays */
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}
+.delay-400 {
+  animation-delay: 400ms;
+}
+.delay-500 {
+  animation-delay: 500ms;
+}
+.delay-600 {
+  animation-delay: 600ms;
+}
+.delay-700 {
+  animation-delay: 700ms;
+}
+.delay-800 {
+  animation-delay: 800ms;
+}
+
+/* Initially hidden for animation */
+.animate-on-scroll {
+  opacity: 0;
+}
+
+/* Terminal cursor */
+.terminal-cursor::after {
+  content: '▌';
+  animation: blink 1s step-end infinite;
+  color: var(--color-electric-yellow);
+}
+
+/* Glow button effect */
+.btn-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-glow::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(
+    45deg,
+    var(--color-electric-yellow),
+    var(--color-cyan),
+    var(--color-hot-pink),
+    var(--color-electric-yellow)
+  );
+  background-size: 300% 300%;
+  animation: gradient-shift 3s ease infinite;
+  border-radius: inherit;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-glow:hover::before {
+  opacity: 1;
+}
+
+/* Scanline effect for retro feel */
+.scanline-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.scanline-overlay::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(
+    transparent,
+    rgba(228, 255, 26, 0.03),
+    transparent
+  );
+  animation: scanline 4s linear infinite;
+}
+
+/* Grid pattern background */
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(39, 39, 42, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(39, 39, 42, 0.3) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Dotted pattern */
+.dot-pattern {
+  background-image: radial-gradient(rgba(39, 39, 42, 0.5) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+/* Diagonal stripes */
+.stripe-pattern {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 10px,
+    rgba(39, 39, 42, 0.3) 10px,
+    rgba(39, 39, 42, 0.3) 20px
+  );
+}
+
+/* Card tilt on hover */
+.card-tilt {
+  transition: transform 0.3s ease;
+}
+
+.card-tilt:hover {
+  transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) translateY(-4px);
+}
+
+/* Magnetic button effect placeholder */
+.magnetic-btn {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Number counter styling */
+.counter-number {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum';
+}
+
+/* Link underline animation */
+.link-underline {
+  position: relative;
+}
+
+.link-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-electric-yellow);
+  transition: width 0.3s ease;
+}
+
+.link-underline:hover::after {
+  width: 100%;
+}
+
+/* Focus styles */
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-electric-yellow);
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar for code blocks */
+pre::-webkit-scrollbar {
+  height: 6px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: #18181b;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: #27272a;
+}
+
+/* Responsive typography scale */
+@media (max-width: 640px) {
+  h1 {
+    font-size: 2rem;
+    line-height: 1.1;
+  }
 }
