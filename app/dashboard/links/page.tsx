@@ -7,7 +7,6 @@ import {
   Copy,
   Check,
   ExternalLink,
-  MoreVertical,
   MousePointerClick,
   Plus,
 } from 'lucide-react';

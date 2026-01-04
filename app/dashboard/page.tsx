@@ -32,13 +32,11 @@ export default function DashboardPage() {
           title="Total Clicks"
           value={mockStats.totalClicks}
           icon={MousePointerClick}
-          trend={{ value: 12, isPositive: true }}
         />
         <StatCard
           title="Active Links"
           value={mockStats.activeLinks}
           icon={Link2}
-          trend={{ value: 8, isPositive: true }}
         />
         <StatCard
           title="Top Link"
