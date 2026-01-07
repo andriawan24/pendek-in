@@ -8,25 +8,35 @@ import { DeviceBreakdown } from '@/components/analytics/device-breakdown';
 import { GeographicData } from '@/components/analytics/geographic-data';
 import { ReferrerSources } from '@/components/analytics/referrer-sources';
 import { BrowserStats } from '@/components/analytics/browser-stats';
-import { getAnalyticsData } from '@/lib/mock-data/analytics';
-import type { AnalyticsData } from '@/lib/mock-data/types';
+import { getAnalyticsData, type AnalyticsData } from '@/lib/analytics';
 
 export default function AnalyticsPage() {
   const [dateRange, setDateRange] = useState('30d');
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
-      setIsLoading(true);
-      const analyticsData = await getAnalyticsData(dateRange);
-      setData(analyticsData);
-      setIsLoading(false);
+      try {
+        setIsLoading(true);
+        setError(null);
+        const analyticsData = await getAnalyticsData(dateRange);
+        setData(analyticsData);
+      } catch (err) {
+        console.error('Failed to fetch analytics data:', err);
+        setError(
+          err instanceof Error ? err.message : 'Failed to load analytics'
+        );
+      } finally {
+        setIsLoading(false);
+      }
     }
+
     fetchData();
   }, [dateRange]);
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return (
       <div className="space-y-6">
         <div className="h-16 animate-pulse rounded-2xl bg-zinc-800" />
@@ -41,6 +51,26 @@ export default function AnalyticsPage() {
         <div className="h-[400px] animate-pulse rounded-2xl bg-zinc-800" />
       </div>
     );
+  }
+
+  if (error) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg text-zinc-400">{error}</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="text-electric-yellow mt-4 hover:underline"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return null;
   }
 
   return (

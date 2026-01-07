@@ -3,7 +3,7 @@
 import { motion } from 'motion/react';
 import { BentoCard } from '@/components/ui/bento-card';
 import { Globe } from 'lucide-react';
-import type { CountryData } from '@/lib/mock-data/types';
+import type { CountryData } from '@/lib/analytics';
 
 interface GeographicDataProps {
   data: CountryData[];

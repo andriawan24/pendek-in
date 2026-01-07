@@ -19,7 +19,7 @@ export function URLShortenerDemo(): React.ReactNode {
     await new Promise((resolve) => setTimeout(resolve, 800));
 
     const randomSlug = Math.random().toString(36).substring(2, 8);
-    setShortenedUrl(`trimbento.co/${randomSlug}`);
+    setShortenedUrl(`pendek.in/${randomSlug}`);
     setIsProcessing(false);
   };
 

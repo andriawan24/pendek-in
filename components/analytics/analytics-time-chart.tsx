@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { BentoCard } from '@/components/ui/bento-card';
 import { LineChart } from 'lucide-react';
-import type { TimeSeriesDataPoint } from '@/lib/mock-data/types';
+import type { TimeSeriesDataPoint } from '@/lib/analytics';
 
 interface AnalyticsTimeChartProps {
   data: TimeSeriesDataPoint[];

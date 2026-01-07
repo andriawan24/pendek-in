@@ -8,12 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { createLink } from '@/lib/links/api';
-import { LinkResponse } from '@/lib/links/types';
+import { Link } from '@/lib/links/types';
 
 interface NewLinkDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (link: LinkResponse) => void;
+  onSuccess?: (link: Link) => void;
 }
 
 export function NewLinkDrawer({

@@ -3,7 +3,7 @@
 import { motion } from 'motion/react';
 import { BentoCard } from '@/components/ui/bento-card';
 import { Share2 } from 'lucide-react';
-import type { ReferrerData } from '@/lib/mock-data/types';
+import type { ReferrerData } from '@/lib/analytics';
 
 interface ReferrerSourcesProps {
   data: ReferrerData[];

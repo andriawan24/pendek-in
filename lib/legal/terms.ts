@@ -3,9 +3,9 @@ export const TERMS_AND_CONDITIONS_DRAFT = {
   updatedAt: 'December 14, 2025',
   sections: [
     {
-      heading: '1. About TrimBento',
+      heading: '1. About pendek-in',
       body: [
-        'TrimBento (“we”, “us”, “our”) provides a link-shortening and analytics product (the “Service”). These Terms govern your use of the Service.',
+        'pendek-in (“we”, “us”, “our”) provides a link-shortening and analytics product (the “Service”). These Terms govern your use of the Service.',
       ],
     },
     {

@@ -17,13 +17,12 @@ import {
 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { toast } from 'sonner';
-import { formatDistanceToNow, format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { LinkResponse } from '@/lib/links/types';
+import { Link } from '@/lib/links/types';
 
 interface LinkDetailsDrawerProps {
-  link: LinkResponse | null;
+  link: Link | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -119,9 +118,7 @@ export function LinkDetailsDrawer({
 
   const handleCopy = async () => {
     if (!link) return;
-    await navigator.clipboard.writeText(
-      `https://trimbento.com/${link.short_code}`
-    );
+    await navigator.clipboard.writeText(`https://pendek.in/${link.short_code}`);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
     toast.success('Link copied to clipboard!');
@@ -143,7 +140,7 @@ export function LinkDetailsDrawer({
 
   if (!link) return null;
 
-  const fullUrl = `https://trimbento.com/${link.short_code}`;
+  const fullUrl = `https://pendek.in/${link.short_code}`;
 
   return (
     <AnimatePresence>

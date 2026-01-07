@@ -2,14 +2,18 @@
 
 import { useEffect, useRef, useMemo } from 'react';
 import * as d3 from 'd3';
-import { TrendingUp } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface DataPoint {
   date: Date;
   clicks: number;
 }
 
-// Generate mock data for last 30 days
+interface AnalyticsChartProps {
+  data?: DataPoint[];
+}
+
+// Generate mock data for last 30 days (fallback)
 function generateMockData(): DataPoint[] {
   const data: DataPoint[] = [];
   const today = new Date();
@@ -26,10 +30,34 @@ function generateMockData(): DataPoint[] {
   return data;
 }
 
-export function AnalyticsChart() {
+export function AnalyticsChart({ data: propData }: AnalyticsChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const data = useMemo(() => generateMockData(), []);
+
+  // Use provided data or generate mock data
+  const data = useMemo(() => {
+    if (propData && propData.length > 0) {
+      return propData.map((d) => ({
+        date: d.date instanceof Date ? d.date : new Date(d.date),
+        clicks: d.clicks,
+      }));
+    }
+    return generateMockData();
+  }, [propData]);
+
+  // Calculate trend
+  const trend = useMemo(() => {
+    if (data.length < 2) return 0;
+    const midpoint = Math.floor(data.length / 2);
+    const firstHalf = data.slice(0, midpoint);
+    const secondHalf = data.slice(midpoint);
+
+    const firstTotal = firstHalf.reduce((sum, d) => sum + d.clicks, 0);
+    const secondTotal = secondHalf.reduce((sum, d) => sum + d.clicks, 0);
+
+    if (firstTotal === 0) return 0;
+    return Math.round(((secondTotal - firstTotal) / firstTotal) * 100);
+  }, [data]);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || data.length === 0) return;
@@ -213,16 +241,34 @@ export function AnalyticsChart() {
     };
   }, [data]);
 
+  const totalClicks = data.reduce((sum, d) => sum + d.clicks, 0);
+
   return (
     <div className="flex h-full flex-col">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <p className="text-xs text-zinc-400">Total clicks (30 days)</p>
+          <p className="text-xs text-zinc-400">
+            Total clicks ({data.length} days)
+          </p>
+          <p className="text-lg font-bold text-white">
+            {totalClicks.toLocaleString()}
+          </p>
         </div>
-        <div className="flex items-center gap-1 text-green-500">
-          <TrendingUp className="h-4 w-4" />
-          <span className="text-sm font-medium">+12%</span>
-        </div>
+        {trend !== 0 && (
+          <div
+            className={`flex items-center gap-1 ${trend > 0 ? 'text-green-500' : 'text-red-500'}`}
+          >
+            {trend > 0 ? (
+              <TrendingUp className="h-4 w-4" />
+            ) : (
+              <TrendingDown className="h-4 w-4" />
+            )}
+            <span className="text-sm font-medium">
+              {trend > 0 ? '+' : ''}
+              {trend}%
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Chart container */}

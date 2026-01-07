@@ -1,95 +1,210 @@
-import {
-  apiRequest,
-  AuthApiError,
-  authenticatedRequest,
-  BaseResponse,
-} from '../utils';
+import { publicAuthApi, getAuthApi, ResponseError } from '../api-client/client';
 import { sessionManager } from './session';
-import type {
-  AuthResponse,
-  LoginRequestBody,
-  RegisterRequestBody,
-  RefreshRequestBody,
-  RefreshResponse,
-  MeResponse,
-  AuthSession,
-} from './types';
+import type { AuthSession, AuthTokens } from './types';
 
-export async function login<T extends LoginRequestBody = LoginRequestBody>(
-  body: T
-): Promise<AuthSession> {
-  const response = await apiRequest<BaseResponse<AuthResponse>>('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(body),
-  });
-
-  const authSession = {
-    tokens: {
-      accessToken: response.data.token,
-      accessTokenExpiredAt: Date.parse(response.data.token_expired_at),
-      refreshToken: response.data.refresh_token,
-      refreshTokenExpiredAt: Date.parse(response.data.refresh_token_expired_at),
-    },
-    user: response.data.user,
-  };
-
-  sessionManager.saveSession(authSession);
-
-  return authSession;
+export class AuthApiError extends Error {
+  constructor(
+    message: string,
+    public statusCode?: number,
+    public response?: unknown
+  ) {
+    super(message);
+    this.name = 'AuthApiError';
+  }
 }
 
-export async function register<
-  T extends RegisterRequestBody = RegisterRequestBody,
->(body: T): Promise<AuthSession> {
-  const response = await apiRequest<BaseResponse<AuthResponse>>(
-    '/auth/register',
-    {
-      method: 'POST',
-      body: JSON.stringify(body),
+/**
+ * Handle API errors and convert to AuthApiError
+ */
+async function handleApiError(error: unknown): Promise<never> {
+  if (error instanceof ResponseError) {
+    let errorMessage = `Request failed with status ${error.response.status}`;
+    let errorData: unknown;
+
+    try {
+      errorData = await error.response.json();
+      if (
+        typeof errorData === 'object' &&
+        errorData !== null &&
+        'message' in errorData
+      ) {
+        errorMessage = String((errorData as { message: string }).message);
+      }
+    } catch {
+      errorMessage = error.response.statusText || errorMessage;
     }
-  );
 
-  const authSession = {
-    user: response.data.user,
-    tokens: {
-      accessToken: response.data.token,
-      accessTokenExpiredAt: Date.parse(response.data.token_expired_at),
-      refreshToken: response.data.refresh_token,
-      refreshTokenExpiredAt: Date.parse(response.data.refresh_token_expired_at),
-    },
-  };
-  sessionManager.saveSession(authSession);
+    throw new AuthApiError(errorMessage, error.response.status, errorData);
+  }
 
-  return authSession;
+  if (error instanceof Error) {
+    throw new AuthApiError(error.message);
+  }
+
+  throw new AuthApiError('Unknown error occurred');
 }
 
-export async function refreshToken(): Promise<RefreshResponse> {
+/**
+ * Login with email and password
+ */
+export async function login(body: {
+  email: string;
+  password: string;
+}): Promise<AuthSession> {
+  try {
+    const response = await publicAuthApi.authLoginPost({
+      request: {
+        email: body.email,
+        password: body.password,
+      },
+    });
+
+    const data = response.data;
+    if (!data) {
+      throw new AuthApiError('Invalid response from server');
+    }
+
+    const authSession: AuthSession = {
+      tokens: {
+        accessToken: data.token ?? '',
+        accessTokenExpiredAt: data.tokenExpiredAt
+          ? Date.parse(data.tokenExpiredAt)
+          : undefined,
+        refreshToken: data.refreshToken ?? '',
+        refreshTokenExpiredAt: data.refreshTokenExpiredAt
+          ? Date.parse(data.refreshTokenExpiredAt)
+          : undefined,
+      },
+      user: {
+        id: data.user?.id ?? '',
+        email: data.user?.email ?? '',
+        name: data.user?.name,
+        is_verified: data.user?.isVerified,
+      },
+    };
+
+    sessionManager.saveSession(authSession);
+    return authSession;
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+/**
+ * Register new user
+ */
+export async function register(body: {
+  email: string;
+  password: string;
+  name?: string;
+}): Promise<AuthSession> {
+  try {
+    const response = await publicAuthApi.authRegisterPost({
+      request: {
+        email: body.email,
+        password: body.password,
+        name: body.name ?? '',
+      },
+    });
+
+    const data = response.data;
+    if (!data) {
+      throw new AuthApiError('Invalid response from server');
+    }
+
+    const authSession: AuthSession = {
+      tokens: {
+        accessToken: data.token ?? '',
+        accessTokenExpiredAt: data.tokenExpiredAt
+          ? Date.parse(data.tokenExpiredAt)
+          : undefined,
+        refreshToken: data.refreshToken ?? '',
+        refreshTokenExpiredAt: data.refreshTokenExpiredAt
+          ? Date.parse(data.refreshTokenExpiredAt)
+          : undefined,
+      },
+      user: {
+        id: data.user?.id ?? '',
+        email: data.user?.email ?? '',
+        name: data.user?.name,
+        is_verified: data.user?.isVerified,
+      },
+    };
+
+    sessionManager.saveSession(authSession);
+    return authSession;
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+/**
+ * Refresh access token using refresh token
+ */
+export async function refreshToken(): Promise<AuthTokens> {
   const refreshTokenValue = sessionManager.getRefreshToken();
 
   if (!refreshTokenValue) {
     throw new AuthApiError('No refresh token available', 401);
   }
 
-  const requestBody: RefreshRequestBody = {
-    refresh_token: refreshTokenValue,
-  };
+  try {
+    const response = await publicAuthApi.authRefreshPost({
+      request: {
+        refreshToken: refreshTokenValue,
+      },
+    });
 
-  const response = await apiRequest<RefreshResponse>('/auth/refresh', {
-    method: 'POST',
-    body: JSON.stringify(requestBody),
-  });
+    const data = response.data;
+    if (!data) {
+      throw new AuthApiError('Invalid response from server');
+    }
 
-  sessionManager.updateTokens(response.tokens);
+    const tokens: AuthTokens = {
+      accessToken: data.token ?? '',
+      accessTokenExpiredAt: data.tokenExpiredAt
+        ? Date.parse(data.tokenExpiredAt)
+        : undefined,
+      refreshToken: data.refreshToken ?? '',
+      refreshTokenExpiredAt: data.refreshTokenExpiredAt
+        ? Date.parse(data.refreshTokenExpiredAt)
+        : undefined,
+    };
 
-  return response;
+    sessionManager.updateTokens(tokens);
+    return tokens;
+  } catch (error) {
+    return handleApiError(error);
+  }
 }
 
-export async function getMe(): Promise<MeResponse> {
-  return authenticatedRequest<MeResponse>('/auth/me', {
-    method: 'GET',
-  });
+/**
+ * Get current user profile
+ */
+export async function getMe(): Promise<AuthSession['user']> {
+  try {
+    const authApi = getAuthApi();
+    const response = await authApi.authMeGet();
+
+    const user = response.data;
+    if (!user) {
+      throw new AuthApiError('Invalid response from server');
+    }
+
+    return {
+      id: user.id ?? '',
+      email: user.email ?? '',
+      name: user.name,
+      is_verified: user.isVerified,
+    };
+  } catch (error) {
+    return handleApiError(error);
+  }
 }
 
+/**
+ * Wrap a request with automatic token refresh on 401
+ */
 export async function withTokenRefresh<T>(
   requestFn: () => Promise<T>
 ): Promise<T> {
@@ -100,18 +215,18 @@ export async function withTokenRefresh<T>(
       try {
         await refreshToken();
         return await requestFn();
-      } catch (refreshError) {
+      } catch {
         sessionManager.clearSession();
-        throw refreshError;
+        throw error;
       }
     }
     throw error;
   }
 }
 
+/**
+ * Logout - clear local session
+ */
 export async function logout(): Promise<void> {
-  // await apiRequest('/auth/logout', { method: 'POST' });
-
-  // Clear local session
   sessionManager.clearSession();
 }

@@ -3,7 +3,7 @@
 import { motion } from 'motion/react';
 import { BentoCard } from '@/components/ui/bento-card';
 import { Smartphone, Monitor, Tablet } from 'lucide-react';
-import type { DeviceBreakdown as DeviceBreakdownType } from '@/lib/mock-data/types';
+import type { DeviceBreakdown as DeviceBreakdownType } from '@/lib/analytics';
 
 interface DeviceBreakdownProps {
   data: DeviceBreakdownType;

@@ -42,7 +42,7 @@ export function Sidebar({ isOpen, onClose, onNewLink }: SidebarProps) {
               <Scissors className="text-charcoal h-5 w-5" />
             </div>
             <span className="text-xl font-bold tracking-tight text-white uppercase">
-              TrimBento
+              pendek-in
             </span>
           </div>
 
@@ -129,7 +129,7 @@ export function Sidebar({ isOpen, onClose, onNewLink }: SidebarProps) {
                       <Scissors className="text-charcoal h-5 w-5" />
                     </div>
                     <span className="text-xl font-bold tracking-tight text-white uppercase">
-                      TrimBento
+                      pendek-in
                     </span>
                   </div>
                   <button

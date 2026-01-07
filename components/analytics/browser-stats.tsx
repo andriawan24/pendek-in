@@ -3,7 +3,7 @@
 import { motion } from 'motion/react';
 import { BentoCard } from '@/components/ui/bento-card';
 import { Chrome } from 'lucide-react';
-import type { BrowserData } from '@/lib/mock-data/types';
+import type { BrowserData } from '@/lib/analytics';
 
 interface BrowserStatsProps {
   data: BrowserData[];

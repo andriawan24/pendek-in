@@ -8,6 +8,6 @@ const getApiBaseUrl = (): string => {
 export const authConfig = {
   apiBaseUrl: getApiBaseUrl(),
   storage: {
-    sessionKey: 'trimBento.auth.session',
+    sessionKey: 'pendekIn.auth.session',
   },
 } as const;

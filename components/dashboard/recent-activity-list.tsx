@@ -14,31 +14,35 @@ interface RecentLink {
   shortCode: string;
   originalUrl: string;
   clicks: number;
-  createdAt: Date;
+  createdAt: string;
 }
 
-// Mock data for recent links
+interface RecentActivityListProps {
+  links?: RecentLink[];
+}
+
+// Mock data for recent links (fallback)
 const mockRecentLinks: RecentLink[] = [
   {
     id: '1',
     shortCode: 'abc123',
     originalUrl: 'https://example.com/very-long-url-that-needs-shortening',
     clicks: 142,
-    createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 min ago
+    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 min ago
   },
   {
     id: '2',
     shortCode: 'xyz789',
     originalUrl: 'https://github.com/user/repository',
     clicks: 87,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
   },
   {
     id: '3',
     shortCode: 'def456',
     originalUrl: 'https://docs.google.com/document/d/1234567890',
     clicks: 56,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), // 5 hours ago
   },
 ];
 
@@ -56,10 +60,12 @@ function truncateUrl(url: string, maxLength: number = 35): string {
   }
 }
 
-export function RecentActivityList() {
-  const displayLinks = mockRecentLinks.slice(0, DISPLAY_LIMIT);
+export function RecentActivityList({ links }: RecentActivityListProps) {
+  // Use provided links or fallback to mock data
+  const recentLinks = links && links.length > 0 ? links : mockRecentLinks;
+  const displayLinks = recentLinks.slice(0, DISPLAY_LIMIT);
 
-  if (mockRecentLinks.length === 0) {
+  if (recentLinks.length === 0) {
     return (
       <div className="flex h-full flex-col items-center justify-center text-center">
         <Link2 className="mb-3 h-10 w-10 text-zinc-600" />
@@ -102,7 +108,9 @@ export function RecentActivityList() {
                   {link.clicks}
                 </div>
                 <p className="text-xs text-zinc-500">
-                  {/* {formatDistanceToNow(link.createdAt, { addSuffix: true })} */}
+                  {formatDistanceToNow(new Date(link.createdAt), {
+                    addSuffix: true,
+                  })}
                 </p>
               </div>
             </button>

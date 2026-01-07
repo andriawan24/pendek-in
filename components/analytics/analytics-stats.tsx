@@ -6,7 +6,7 @@ import { StatCard } from '@/components/dashboard/stat-card';
 interface AnalyticsStatsProps {
   totalClicks: number;
   activeLinks: number;
-  topLink: { shortCode: string; clicks: number };
+  topLink: { shortCode: string; clicks: number } | null;
   avgClicksPerDay: number;
 }
 
@@ -32,9 +32,11 @@ export function AnalyticsStats({
       />
       <StatCard
         title="Top Performer"
-        value={`/${topLink.shortCode}`}
+        value={topLink ? `/${topLink.shortCode}` : '-'}
         icon={TrendingUp}
-        subtitle={`${topLink.clicks.toLocaleString()} clicks`}
+        subtitle={
+          topLink ? `${topLink.clicks.toLocaleString()} clicks` : 'No data yet'
+        }
       />
       <StatCard
         title="Avg. Clicks/Day"

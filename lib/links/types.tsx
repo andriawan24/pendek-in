@@ -4,7 +4,7 @@ export interface CreateLinkRequest {
   expired_at?: string;
 }
 
-export interface LinkResponse {
+export interface Link {
   id: string;
   original_url: string;
   short_code: string;

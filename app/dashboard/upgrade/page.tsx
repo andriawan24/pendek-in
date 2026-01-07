@@ -42,7 +42,7 @@ const plans: Plan[] = [
     name: 'Free',
     price: '$0',
     priceSuffix: '/month',
-    description: 'Great for trying TrimBento and sharing a few links.',
+    description: 'Great for trying pendek-in and sharing a few links.',
     accent: 'periwinkle',
     cta: { label: 'Current Plan', variant: 'outline' },
     features: [

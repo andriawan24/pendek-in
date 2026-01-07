@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect, useEffectEvent, useRef, useState } from 'react';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu, Bell, ChevronDown, User, LogOut, Settings } from 'lucide-react';

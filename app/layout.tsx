@@ -17,9 +17,9 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'TrimBento - Links That Work As Hard As You Do',
+  title: 'pendek-in - Links That Work As Hard As You Do',
   description:
-    'Neo-brutalist link shortener with real-time analytics, QR codes, and a beautiful dark dashboard. Built for developers and creators.',
+    'Feature-rich link shortener with real-time analytics, custom QR codes, and a sleek dark dashboard. Designed for developers and creators who want outstanding tools.',
   icons: {
     icon: '/favicon.ico',
   },

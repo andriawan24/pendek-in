@@ -14,16 +14,16 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LinkDetailsDrawer } from '@/components/links/link-details-drawer';
-import { LinkResponse } from '@/lib/links/types';
+import { Link } from '@/lib/links/types';
 import { getLinks } from '@/lib/links/api';
 import { useNewLink } from '@/lib/links/new-link-context';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function LinksPage(): React.ReactNode {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLink, setSelectedLink] = useState<LinkResponse | null>(null);
+  const [selectedLink, setSelectedLink] = useState<Link | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [links, setLinks] = useState<LinkResponse[]>([]);
+  const [links, setLinks] = useState<Link[]>([]);
   const { openNewLinkDrawer, onLinkCreated } = useNewLink();
 
   const fetchLinks = useEffectEvent(async () => {
@@ -51,7 +51,7 @@ export default function LinksPage(): React.ReactNode {
       link.custom_short_code?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCopy = async (link: LinkResponse) => {
+  const handleCopy = async (link: Link) => {
     await navigator.clipboard.writeText(
       `http://localhost:8080/${link.short_code}`
     );

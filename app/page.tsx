@@ -207,7 +207,7 @@ function LandingNavbar({ isAuth }: { isAuth: boolean }): React.ReactNode {
           <Scissors className="text-charcoal h-5 w-5" />
         </div>
         <span className="text-xl font-bold tracking-tight text-white uppercase">
-          TrimBento
+          pendek-in
         </span>
       </motion.div>
 
@@ -584,19 +584,19 @@ export default function LandingPage() {
           <div className="mx-auto mt-12 grid max-w-3xl gap-6">
             <TerminalStep
               step={1}
-              command="trimbento shorten https://my-very-long-url.com/path"
-              output="→ trimbento.co/x7k9m2"
+              command="pendek-in shorten https://my-very-long-url.com/path"
+              output="→ pendek.in/x7k9m2"
               delay={0}
             />
             <TerminalStep
               step={2}
-              command="trimbento share x7k9m2"
+              command="pendek-in share x7k9m2"
               output="→ Link copied to clipboard"
               delay={0.15}
             />
             <TerminalStep
               step={3}
-              command="trimbento stats x7k9m2"
+              command="pendek-in stats x7k9m2"
               output="→ 1,247 clicks | 32 countries | 89% mobile"
               delay={0.3}
             />
@@ -646,7 +646,7 @@ export default function LandingPage() {
               <div className="bg-electric-yellow flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-700">
                 <Scissors className="text-charcoal h-4 w-4" />
               </div>
-              <span className="font-bold text-white uppercase">TrimBento</span>
+              <span className="font-bold text-white uppercase">pendek-in</span>
             </div>
 
             <div className="flex items-center gap-6 text-sm text-zinc-500">
@@ -657,7 +657,7 @@ export default function LandingPage() {
                 {isAuth ? 'Dashboard' : 'Sign in'}
               </Link>
               <span className="text-zinc-700">|</span>
-              <span>&copy; {new Date().getFullYear()} TrimBento</span>
+              <span>&copy; {new Date().getFullYear()} pendek-in</span>
             </div>
           </div>
         </footer>
