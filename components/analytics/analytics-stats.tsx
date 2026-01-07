@@ -22,14 +22,8 @@ export function AnalyticsStats({
         title="Total Clicks"
         value={totalClicks}
         icon={MousePointerClick}
-        trend={{ value: 12, isPositive: true }}
       />
-      <StatCard
-        title="Active Links"
-        value={activeLinks}
-        icon={Link2}
-        trend={{ value: 8, isPositive: true }}
-      />
+      <StatCard title="Active Links" value={activeLinks} icon={Link2} />
       <StatCard
         title="Top Performer"
         value={topLink ? `/${topLink.shortCode}` : '-'}
@@ -42,7 +36,6 @@ export function AnalyticsStats({
         title="Avg. Clicks/Day"
         value={avgClicksPerDay}
         icon={Activity}
-        trend={{ value: 5, isPositive: true }}
       />
     </div>
   );

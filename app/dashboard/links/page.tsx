@@ -18,6 +18,7 @@ import { Link } from '@/lib/links/types';
 import { getLinks } from '@/lib/links/api';
 import { useNewLink } from '@/lib/links/new-link-context';
 import { formatDistanceToNow } from 'date-fns';
+import { buildShortLink, getShortLinkBaseUrl } from '@/lib/config';
 
 export default function LinksPage(): React.ReactNode {
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,9 +53,7 @@ export default function LinksPage(): React.ReactNode {
   );
 
   const handleCopy = async (link: Link) => {
-    await navigator.clipboard.writeText(
-      `http://localhost:8080/${link.short_code}`
-    );
+    await navigator.clipboard.writeText(buildShortLink(link.short_code));
     setCopiedId(link.id);
     setTimeout(() => setCopiedId(null), 2000);
     toast.success('Link copied to clipboard!');
@@ -130,7 +129,7 @@ export default function LinksPage(): React.ReactNode {
                   <div className="sm:hidden">
                     <div className="mb-2 flex items-center justify-between">
                       <span className="text-electric-yellow font-mono text-sm font-medium">
-                        localhost:8080/{link.short_code}
+                        {getShortLinkBaseUrl()}/{link.short_code}
                       </span>
                       <div className="flex items-center gap-1 text-sm text-zinc-400">
                         {link.click_count}

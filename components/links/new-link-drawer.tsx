@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { createLink } from '@/lib/links/api';
 import { Link } from '@/lib/links/types';
+import { getShortLinkBaseUrl } from '@/lib/config';
 
 interface NewLinkDrawerProps {
   isOpen: boolean;
@@ -242,7 +243,7 @@ export function NewLinkDrawer({
                         Preview
                       </label>
                       <p className="text-electric-yellow font-mono text-sm break-all">
-                        localhost:8080/{customCode || 'xxxxxx'}
+                        {getShortLinkBaseUrl()}/{customCode || 'xxxxxx'}
                       </p>
                       <p className="mt-1 text-xs break-all text-zinc-500">
                         {url || 'https://...'}

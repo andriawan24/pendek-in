@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link } from '@/lib/links/types';
+import { buildShortLink } from '@/lib/config';
 
 interface LinkDetailsDrawerProps {
   link: Link | null;
@@ -87,7 +88,7 @@ export function LinkDetailsDrawer({
   // Generate QR code when link changes
   useEffect(() => {
     if (link && canvasRef.current) {
-      const fullUrl = `http://localhost:8080/${link.short_code}`;
+      const fullUrl = buildShortLink(link.short_code);
       QRCode.toCanvas(
         canvasRef.current,
         fullUrl,
@@ -118,7 +119,7 @@ export function LinkDetailsDrawer({
 
   const handleCopy = async () => {
     if (!link) return;
-    await navigator.clipboard.writeText(`https://pendek.in/${link.short_code}`);
+    await navigator.clipboard.writeText(buildShortLink(link.short_code));
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
     toast.success('Link copied to clipboard!');
@@ -140,7 +141,7 @@ export function LinkDetailsDrawer({
 
   if (!link) return null;
 
-  const fullUrl = `https://pendek.in/${link.short_code}`;
+  const fullUrl = buildShortLink(link.short_code);
 
   return (
     <AnimatePresence>

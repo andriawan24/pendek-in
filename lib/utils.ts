@@ -10,5 +10,4 @@ export interface BaseResponse<T> {
   data: T;
 }
 
-// Re-export AuthApiError from auth/api for backwards compatibility
 export { AuthApiError } from './auth/api';

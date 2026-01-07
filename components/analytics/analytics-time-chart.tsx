@@ -20,20 +20,16 @@ export function AnalyticsTimeChart({ data }: AnalyticsTimeChartProps) {
     const container = containerRef.current;
     const svg = d3.select(svgRef.current);
 
-    // Clear previous render
     svg.selectAll('*').remove();
 
-    // Get container dimensions
     const width = container.clientWidth;
     const height = container.clientHeight;
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
 
-    // Set SVG dimensions
     svg.attr('width', width).attr('height', height);
 
-    // Create scales
     const xScale = d3
       .scaleTime()
       .domain(d3.extent(data, (d) => d.date) as [Date, Date])
@@ -45,7 +41,6 @@ export function AnalyticsTimeChart({ data }: AnalyticsTimeChartProps) {
       .nice()
       .range([innerHeight, 0]);
 
-    // Create area generator
     const area = d3
       .area<TimeSeriesDataPoint>()
       .x((d) => xScale(d.date))
@@ -53,19 +48,16 @@ export function AnalyticsTimeChart({ data }: AnalyticsTimeChartProps) {
       .y1((d) => yScale(d.clicks))
       .curve(d3.curveMonotoneX);
 
-    // Create line generator
     const line = d3
       .line<TimeSeriesDataPoint>()
       .x((d) => xScale(d.date))
       .y((d) => yScale(d.clicks))
       .curve(d3.curveMonotoneX);
 
-    // Create main group
     const g = svg
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
-    // Add gradient
     const gradient = svg
       .append('defs')
       .append('linearGradient')
@@ -87,7 +79,6 @@ export function AnalyticsTimeChart({ data }: AnalyticsTimeChartProps) {
       .attr('stop-color', '#CCCCFF')
       .attr('stop-opacity', 0.05);
 
-    // Add grid lines
     g.append('g')
       .attr('class', 'grid')
       .call(
@@ -100,13 +91,11 @@ export function AnalyticsTimeChart({ data }: AnalyticsTimeChartProps) {
       .call((g) => g.select('.domain').remove())
       .call((g) => g.selectAll('.tick line').attr('stroke', '#27272a'));
 
-    // Draw area
     g.append('path')
       .datum(data)
       .attr('fill', 'url(#analytics-area-gradient)')
       .attr('d', area);
 
-    // Draw line
     g.append('path')
       .datum(data)
       .attr('fill', 'none')
@@ -114,7 +103,6 @@ export function AnalyticsTimeChart({ data }: AnalyticsTimeChartProps) {
       .attr('stroke-width', 2.5)
       .attr('d', line);
 
-    // Add X axis
     const tickCount = data.length > 60 ? 6 : data.length > 14 ? 8 : 7;
     g.append('g')
       .attr('transform', `translate(0,${innerHeight})`)
@@ -135,7 +123,6 @@ export function AnalyticsTimeChart({ data }: AnalyticsTimeChartProps) {
           .attr('font-size', '11px')
       );
 
-    // Add Y axis
     g.append('g')
       .call(
         d3
@@ -152,7 +139,6 @@ export function AnalyticsTimeChart({ data }: AnalyticsTimeChartProps) {
           .attr('font-size', '11px')
       );
 
-    // Add hover effect with tooltip
     const tooltip = d3
       .select(container)
       .append('div')
@@ -225,7 +211,6 @@ export function AnalyticsTimeChart({ data }: AnalyticsTimeChartProps) {
         }
       });
 
-    // Cleanup
     return () => {
       tooltip.remove();
     };
