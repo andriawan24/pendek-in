@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { GoogleLogo } from '@/components/auth/google-logo';
 
 export function GoogleSignInButton({
-  href = '/auth/google',
+  href = '/api/auth/google',
   className,
 }: {
   href?: string;
