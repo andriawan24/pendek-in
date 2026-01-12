@@ -4,8 +4,10 @@
 
 | Name                    | Type                                              |
 | ----------------------- | ------------------------------------------------- |
+| `authUrl`               | string                                            |
 | `refreshToken`          | string                                            |
 | `refreshTokenExpiredAt` | string                                            |
+| `state`                 | string                                            |
 | `token`                 | string                                            |
 | `tokenExpiredAt`        | string                                            |
 | `user`                  | [ResponsesUserResponse](ResponsesUserResponse.md) |
@@ -17,8 +19,10 @@ import type { ResponsesLoginResponse } from '';
 
 // TODO: Update the object below with actual values
 const example = {
+  authUrl: null,
   refreshToken: null,
   refreshTokenExpiredAt: null,
+  state: null,
   token: null,
   tokenExpiredAt: null,
   user: null,

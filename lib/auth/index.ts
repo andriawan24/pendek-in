@@ -14,6 +14,7 @@ export type {
 export {
   login,
   register,
+  loginWithGoogle,
   refreshToken,
   getMe,
   withTokenRefresh,

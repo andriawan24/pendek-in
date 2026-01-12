@@ -2,7 +2,7 @@
 
 export * from './AnalyticsDashboardGet200Response';
 export * from './AnalyticsGet200Response';
-export * from './AuthLoginPost200Response';
+export * from './AuthGoogleGet200Response';
 export * from './AuthMeGet200Response';
 export * from './LinksAllGet200Response';
 export * from './LinksIdGet200Response';

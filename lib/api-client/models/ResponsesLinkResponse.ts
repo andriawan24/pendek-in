@@ -13,6 +13,14 @@
  */
 
 import { mapValues } from '../runtime';
+import type { ResponsesTypeValue } from './ResponsesTypeValue';
+import {
+  ResponsesTypeValueFromJSON,
+  ResponsesTypeValueFromJSONTyped,
+  ResponsesTypeValueToJSON,
+  ResponsesTypeValueToJSONTyped,
+} from './ResponsesTypeValue';
+
 /**
  *
  * @export
@@ -39,6 +47,12 @@ export interface ResponsesLinkResponse {
   customShortCode?: string;
   /**
    *
+   * @type {Array<ResponsesTypeValue>}
+   * @memberof ResponsesLinkResponse
+   */
+  deviceBreakdowns?: Array<ResponsesTypeValue>;
+  /**
+   *
    * @type {string}
    * @memberof ResponsesLinkResponse
    */
@@ -61,6 +75,12 @@ export interface ResponsesLinkResponse {
    * @memberof ResponsesLinkResponse
    */
   shortCode?: string;
+  /**
+   *
+   * @type {Array<ResponsesTypeValue>}
+   * @memberof ResponsesLinkResponse
+   */
+  topCountries?: Array<ResponsesTypeValue>;
 }
 
 /**
@@ -90,11 +110,21 @@ export function ResponsesLinkResponseFromJSONTyped(
     createdAt: json['created_at'] == null ? undefined : json['created_at'],
     customShortCode:
       json['custom_short_code'] == null ? undefined : json['custom_short_code'],
+    deviceBreakdowns:
+      json['device_breakdowns'] == null
+        ? undefined
+        : (json['device_breakdowns'] as Array<any>).map(
+            ResponsesTypeValueFromJSON
+          ),
     expiredAt: json['expired_at'] == null ? undefined : json['expired_at'],
     id: json['id'] == null ? undefined : json['id'],
     originalUrl:
       json['original_url'] == null ? undefined : json['original_url'],
     shortCode: json['short_code'] == null ? undefined : json['short_code'],
+    topCountries:
+      json['top_countries'] == null
+        ? undefined
+        : (json['top_countries'] as Array<any>).map(ResponsesTypeValueFromJSON),
   };
 }
 
@@ -114,9 +144,19 @@ export function ResponsesLinkResponseToJSONTyped(
     click_count: value['clickCount'],
     created_at: value['createdAt'],
     custom_short_code: value['customShortCode'],
+    device_breakdowns:
+      value['deviceBreakdowns'] == null
+        ? undefined
+        : (value['deviceBreakdowns'] as Array<any>).map(
+            ResponsesTypeValueToJSON
+          ),
     expired_at: value['expiredAt'],
     id: value['id'],
     original_url: value['originalUrl'],
     short_code: value['shortCode'],
+    top_countries:
+      value['topCountries'] == null
+        ? undefined
+        : (value['topCountries'] as Array<any>).map(ResponsesTypeValueToJSON),
   };
 }

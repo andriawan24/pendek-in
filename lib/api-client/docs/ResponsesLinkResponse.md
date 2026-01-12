@@ -2,15 +2,17 @@
 
 ## Properties
 
-| Name              | Type   |
-| ----------------- | ------ |
-| `clickCount`      | number |
-| `createdAt`       | string |
-| `customShortCode` | string |
-| `expiredAt`       | string |
-| `id`              | string |
-| `originalUrl`     | string |
-| `shortCode`       | string |
+| Name               | Type                                                     |
+| ------------------ | -------------------------------------------------------- |
+| `clickCount`       | number                                                   |
+| `createdAt`        | string                                                   |
+| `customShortCode`  | string                                                   |
+| `deviceBreakdowns` | [Array&lt;ResponsesTypeValue&gt;](ResponsesTypeValue.md) |
+| `expiredAt`        | string                                                   |
+| `id`               | string                                                   |
+| `originalUrl`      | string                                                   |
+| `shortCode`        | string                                                   |
+| `topCountries`     | [Array&lt;ResponsesTypeValue&gt;](ResponsesTypeValue.md) |
 
 ## Example
 
@@ -22,10 +24,12 @@ const example = {
   clickCount: null,
   createdAt: null,
   customShortCode: null,
+  deviceBreakdowns: null,
   expiredAt: null,
   id: null,
   originalUrl: null,
   shortCode: null,
+  topCountries: null,
 } satisfies ResponsesLinkResponse;
 
 console.log(example);

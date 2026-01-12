@@ -14,7 +14,7 @@
 
 import * as runtime from '../runtime';
 import type {
-  AuthLoginPost200Response,
+  AuthGoogleGet200Response,
   AuthMeGet200Response,
   RequestsLoginParam,
   RequestsRefreshParam,
@@ -23,8 +23,8 @@ import type {
   ResponsesErrorResponse,
 } from '../models/index';
 import {
-  AuthLoginPost200ResponseFromJSON,
-  AuthLoginPost200ResponseToJSON,
+  AuthGoogleGet200ResponseFromJSON,
+  AuthGoogleGet200ResponseToJSON,
   AuthMeGet200ResponseFromJSON,
   AuthMeGet200ResponseToJSON,
   RequestsLoginParamFromJSON,
@@ -38,6 +38,10 @@ import {
   ResponsesErrorResponseFromJSON,
   ResponsesErrorResponseToJSON,
 } from '../models/index';
+
+export interface AuthGoogleGetRequest {
+  code?: string;
+}
 
 export interface AuthLoginPostRequest {
   request: RequestsLoginParam;
@@ -63,6 +67,28 @@ export interface AuthUpdateProfilePutRequest {
  */
 export interface AuthApiInterface {
   /**
+   * Authenticate or register user via Google OAuth. Use without code param to get redirect URL, with code param to complete authentication.
+   * @summary Google OAuth authentication
+   * @param {string} [code] OAuth authorization code from Google callback
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof AuthApiInterface
+   */
+  authGoogleGetRaw(
+    requestParameters: AuthGoogleGetRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction
+  ): Promise<runtime.ApiResponse<AuthGoogleGet200Response>>;
+
+  /**
+   * Authenticate or register user via Google OAuth. Use without code param to get redirect URL, with code param to complete authentication.
+   * Google OAuth authentication
+   */
+  authGoogleGet(
+    requestParameters: AuthGoogleGetRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction
+  ): Promise<AuthGoogleGet200Response>;
+
+  /**
    * Authenticate user with email and password
    * @summary User login
    * @param {RequestsLoginParam} request Login credentials
@@ -73,7 +99,7 @@ export interface AuthApiInterface {
   authLoginPostRaw(
     requestParameters: AuthLoginPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<runtime.ApiResponse<AuthLoginPost200Response>>;
+  ): Promise<runtime.ApiResponse<AuthGoogleGet200Response>>;
 
   /**
    * Authenticate user with email and password
@@ -82,7 +108,7 @@ export interface AuthApiInterface {
   authLoginPost(
     requestParameters: AuthLoginPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<AuthLoginPost200Response>;
+  ): Promise<AuthGoogleGet200Response>;
 
   /**
    * Get current authenticated user profile
@@ -114,7 +140,7 @@ export interface AuthApiInterface {
   authRefreshPostRaw(
     requestParameters: AuthRefreshPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<runtime.ApiResponse<AuthLoginPost200Response>>;
+  ): Promise<runtime.ApiResponse<AuthGoogleGet200Response>>;
 
   /**
    * Get new access token using refresh token
@@ -123,7 +149,7 @@ export interface AuthApiInterface {
   authRefreshPost(
     requestParameters: AuthRefreshPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<AuthLoginPost200Response>;
+  ): Promise<AuthGoogleGet200Response>;
 
   /**
    * Create a new user account
@@ -136,7 +162,7 @@ export interface AuthApiInterface {
   authRegisterPostRaw(
     requestParameters: AuthRegisterPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<runtime.ApiResponse<AuthLoginPost200Response>>;
+  ): Promise<runtime.ApiResponse<AuthGoogleGet200Response>>;
 
   /**
    * Create a new user account
@@ -145,7 +171,7 @@ export interface AuthApiInterface {
   authRegisterPost(
     requestParameters: AuthRegisterPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<AuthLoginPost200Response>;
+  ): Promise<AuthGoogleGet200Response>;
 
   /**
    * Update current authenticated user profile
@@ -175,13 +201,61 @@ export interface AuthApiInterface {
  */
 export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
   /**
+   * Authenticate or register user via Google OAuth. Use without code param to get redirect URL, with code param to complete authentication.
+   * Google OAuth authentication
+   */
+  async authGoogleGetRaw(
+    requestParameters: AuthGoogleGetRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction
+  ): Promise<runtime.ApiResponse<AuthGoogleGet200Response>> {
+    const queryParameters: any = {};
+
+    if (requestParameters['code'] != null) {
+      queryParameters['code'] = requestParameters['code'];
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    let urlPath = `/auth/google`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      AuthGoogleGet200ResponseFromJSON(jsonValue)
+    );
+  }
+
+  /**
+   * Authenticate or register user via Google OAuth. Use without code param to get redirect URL, with code param to complete authentication.
+   * Google OAuth authentication
+   */
+  async authGoogleGet(
+    requestParameters: AuthGoogleGetRequest = {},
+    initOverrides?: RequestInit | runtime.InitOverrideFunction
+  ): Promise<AuthGoogleGet200Response> {
+    const response = await this.authGoogleGetRaw(
+      requestParameters,
+      initOverrides
+    );
+    return await response.value();
+  }
+
+  /**
    * Authenticate user with email and password
    * User login
    */
   async authLoginPostRaw(
     requestParameters: AuthLoginPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<runtime.ApiResponse<AuthLoginPost200Response>> {
+  ): Promise<runtime.ApiResponse<AuthGoogleGet200Response>> {
     if (requestParameters['request'] == null) {
       throw new runtime.RequiredError(
         'request',
@@ -209,7 +283,7 @@ export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
     );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      AuthLoginPost200ResponseFromJSON(jsonValue)
+      AuthGoogleGet200ResponseFromJSON(jsonValue)
     );
   }
 
@@ -220,7 +294,7 @@ export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
   async authLoginPost(
     requestParameters: AuthLoginPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<AuthLoginPost200Response> {
+  ): Promise<AuthGoogleGet200Response> {
     const response = await this.authLoginPostRaw(
       requestParameters,
       initOverrides
@@ -279,7 +353,7 @@ export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
   async authRefreshPostRaw(
     requestParameters: AuthRefreshPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<runtime.ApiResponse<AuthLoginPost200Response>> {
+  ): Promise<runtime.ApiResponse<AuthGoogleGet200Response>> {
     if (requestParameters['request'] == null) {
       throw new runtime.RequiredError(
         'request',
@@ -307,7 +381,7 @@ export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
     );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      AuthLoginPost200ResponseFromJSON(jsonValue)
+      AuthGoogleGet200ResponseFromJSON(jsonValue)
     );
   }
 
@@ -318,7 +392,7 @@ export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
   async authRefreshPost(
     requestParameters: AuthRefreshPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<AuthLoginPost200Response> {
+  ): Promise<AuthGoogleGet200Response> {
     const response = await this.authRefreshPostRaw(
       requestParameters,
       initOverrides
@@ -333,7 +407,7 @@ export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
   async authRegisterPostRaw(
     requestParameters: AuthRegisterPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<runtime.ApiResponse<AuthLoginPost200Response>> {
+  ): Promise<runtime.ApiResponse<AuthGoogleGet200Response>> {
     if (requestParameters['request'] == null) {
       throw new runtime.RequiredError(
         'request',
@@ -361,7 +435,7 @@ export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
     );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      AuthLoginPost200ResponseFromJSON(jsonValue)
+      AuthGoogleGet200ResponseFromJSON(jsonValue)
     );
   }
 
@@ -372,7 +446,7 @@ export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
   async authRegisterPost(
     requestParameters: AuthRegisterPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<AuthLoginPost200Response> {
+  ): Promise<AuthGoogleGet200Response> {
     const response = await this.authRegisterPostRaw(
       requestParameters,
       initOverrides

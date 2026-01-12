@@ -225,6 +225,44 @@ export async function withTokenRefresh<T>(
 }
 
 /**
+ * Login with Google OAuth using authorization code
+ */
+export async function loginWithGoogle(code: string): Promise<AuthSession> {
+  try {
+    const response = await publicAuthApi.authGoogleGet({ code });
+
+    const data = response.data;
+    if (!data) {
+      throw new AuthApiError('Invalid response from server');
+    }
+
+    const authSession: AuthSession = {
+      tokens: {
+        accessToken: data.token ?? '',
+        accessTokenExpiredAt: data.tokenExpiredAt
+          ? Date.parse(data.tokenExpiredAt)
+          : undefined,
+        refreshToken: data.refreshToken ?? '',
+        refreshTokenExpiredAt: data.refreshTokenExpiredAt
+          ? Date.parse(data.refreshTokenExpiredAt)
+          : undefined,
+      },
+      user: {
+        id: data.user?.id ?? '',
+        email: data.user?.email ?? '',
+        name: data.user?.name,
+        is_verified: data.user?.isVerified,
+      },
+    };
+
+    sessionManager.saveSession(authSession);
+    return authSession;
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
+
+/**
  * Logout - clear local session
  */
 export async function logout(): Promise<void> {

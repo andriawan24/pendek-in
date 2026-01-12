@@ -7,7 +7,7 @@ docs/AnalyticsApi.md
 docs/AnalyticsDashboardGet200Response.md
 docs/AnalyticsGet200Response.md
 docs/AuthApi.md
-docs/AuthLoginPost200Response.md
+docs/AuthGoogleGet200Response.md
 docs/AuthMeGet200Response.md
 docs/LinksAllGet200Response.md
 docs/LinksApi.md
@@ -31,7 +31,7 @@ docs/ResponsesUserResponse.md
 index.ts
 models/AnalyticsDashboardGet200Response.ts
 models/AnalyticsGet200Response.ts
-models/AuthLoginPost200Response.ts
+models/AuthGoogleGet200Response.ts
 models/AuthMeGet200Response.ts
 models/LinksAllGet200Response.ts
 models/LinksIdGet200Response.ts

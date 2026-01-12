@@ -32,6 +32,12 @@ export interface ResponsesLoginResponse {
    * @type {string}
    * @memberof ResponsesLoginResponse
    */
+  authUrl?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponsesLoginResponse
+   */
   refreshToken?: string;
   /**
    *
@@ -39,6 +45,12 @@ export interface ResponsesLoginResponse {
    * @memberof ResponsesLoginResponse
    */
   refreshTokenExpiredAt?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponsesLoginResponse
+   */
+  state?: string;
   /**
    *
    * @type {string}
@@ -82,12 +94,14 @@ export function ResponsesLoginResponseFromJSONTyped(
     return json;
   }
   return {
+    authUrl: json['auth_url'] == null ? undefined : json['auth_url'],
     refreshToken:
       json['refresh_token'] == null ? undefined : json['refresh_token'],
     refreshTokenExpiredAt:
       json['refresh_token_expired_at'] == null
         ? undefined
         : json['refresh_token_expired_at'],
+    state: json['state'] == null ? undefined : json['state'],
     token: json['token'] == null ? undefined : json['token'],
     tokenExpiredAt:
       json['token_expired_at'] == null ? undefined : json['token_expired_at'],
@@ -113,8 +127,10 @@ export function ResponsesLoginResponseToJSONTyped(
   }
 
   return {
+    auth_url: value['authUrl'],
     refresh_token: value['refreshToken'],
     refresh_token_expired_at: value['refreshTokenExpiredAt'],
+    state: value['state'],
     token: value['token'],
     token_expired_at: value['tokenExpiredAt'],
     user: ResponsesUserResponseToJSON(value['user']),

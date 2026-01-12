@@ -12,6 +12,7 @@ import {
   login as apiLogin,
   register as apiRegister,
   logout as apiLogout,
+  loginWithGoogle as apiLoginWithGoogle,
 } from './api';
 import type { AuthUser, LoginRequestBody, RegisterRequestBody } from './types';
 
@@ -20,7 +21,9 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   login: (credentials: LoginRequestBody) => Promise<void>;
   register: (data: RegisterRequestBody) => Promise<void>;
+  loginWithGoogle: (code: string) => Promise<void>;
   logout: () => void;
+  refreshUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -44,9 +47,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(session.user);
   }, []);
 
+  const loginWithGoogle = useCallback(async (code: string) => {
+    const session = await apiLoginWithGoogle(code);
+    setUser(session.user);
+  }, []);
+
   const logout = useCallback(() => {
     apiLogout();
     setUser(null);
+  }, []);
+
+  const refreshUser = useCallback(() => {
+    const session = sessionManager.getSession();
+    if (session && sessionManager.isAuthenticated()) {
+      setUser(session.user);
+    } else {
+      setUser(null);
+    }
   }, []);
 
   return (
@@ -56,7 +73,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         login,
         register,
+        loginWithGoogle,
         logout,
+        refreshUser,
       }}
     >
       {children}

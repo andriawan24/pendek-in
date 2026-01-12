@@ -2,17 +2,82 @@
 
 All URIs are relative to _http://localhost:8080_
 
-| Method                                                      | HTTP request                 | Description         |
-| ----------------------------------------------------------- | ---------------------------- | ------------------- |
-| [**authLoginPost**](AuthApi.md#authloginpost)               | **POST** /auth/login         | User login          |
-| [**authMeGet**](AuthApi.md#authmeget)                       | **GET** /auth/me             | Get user profile    |
-| [**authRefreshPost**](AuthApi.md#authrefreshpost)           | **POST** /auth/refresh       | Refresh token       |
-| [**authRegisterPost**](AuthApi.md#authregisterpost)         | **POST** /auth/register      | Register new user   |
-| [**authUpdateProfilePut**](AuthApi.md#authupdateprofileput) | **PUT** /auth/update-profile | Update user profile |
+| Method                                                      | HTTP request                 | Description                 |
+| ----------------------------------------------------------- | ---------------------------- | --------------------------- |
+| [**authGoogleGet**](AuthApi.md#authgoogleget)               | **GET** /auth/google         | Google OAuth authentication |
+| [**authLoginPost**](AuthApi.md#authloginpost)               | **POST** /auth/login         | User login                  |
+| [**authMeGet**](AuthApi.md#authmeget)                       | **GET** /auth/me             | Get user profile            |
+| [**authRefreshPost**](AuthApi.md#authrefreshpost)           | **POST** /auth/refresh       | Refresh token               |
+| [**authRegisterPost**](AuthApi.md#authregisterpost)         | **POST** /auth/register      | Register new user           |
+| [**authUpdateProfilePut**](AuthApi.md#authupdateprofileput) | **PUT** /auth/update-profile | Update user profile         |
+
+## authGoogleGet
+
+> AuthGoogleGet200Response authGoogleGet(code)
+
+Google OAuth authentication
+
+Authenticate or register user via Google OAuth. Use without code param to get redirect URL, with code param to complete authentication.
+
+### Example
+
+```ts
+import { Configuration, AuthApi } from '';
+import type { AuthGoogleGetRequest } from '';
+
+async function example() {
+  console.log('🚀 Testing  SDK...');
+  const api = new AuthApi();
+
+  const body = {
+    // string | OAuth authorization code from Google callback (optional)
+    code: code_example,
+  } satisfies AuthGoogleGetRequest;
+
+  try {
+    const data = await api.authGoogleGet(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+| Name     | Type     | Description                                   | Notes                                |
+| -------- | -------- | --------------------------------------------- | ------------------------------------ |
+| **code** | `string` | OAuth authorization code from Google callback | [Optional] [Defaults to `undefined`] |
+
+### Return type
+
+[**AuthGoogleGet200Response**](AuthGoogleGet200Response.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `application/json`
+
+### HTTP response details
+
+| Status code | Description           | Response headers |
+| ----------- | --------------------- | ---------------- |
+| **200**     | OK                    | -                |
+| **400**     | Bad Request           | -                |
+| **500**     | Internal Server Error | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 ## authLoginPost
 
-> AuthLoginPost200Response authLoginPost(request)
+> AuthGoogleGet200Response authLoginPost(request)
 
 User login
 
@@ -56,7 +121,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AuthLoginPost200Response**](AuthLoginPost200Response.md)
+[**AuthGoogleGet200Response**](AuthGoogleGet200Response.md)
 
 ### Authorization
 
@@ -140,7 +205,7 @@ This endpoint does not need any parameter.
 
 ## authRefreshPost
 
-> AuthLoginPost200Response authRefreshPost(request)
+> AuthGoogleGet200Response authRefreshPost(request)
 
 Refresh token
 
@@ -184,7 +249,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AuthLoginPost200Response**](AuthLoginPost200Response.md)
+[**AuthGoogleGet200Response**](AuthGoogleGet200Response.md)
 
 ### Authorization
 
@@ -207,7 +272,7 @@ No authorization required
 
 ## authRegisterPost
 
-> AuthLoginPost200Response authRegisterPost(request)
+> AuthGoogleGet200Response authRegisterPost(request)
 
 Register new user
 
@@ -251,7 +316,7 @@ example().catch(console.error);
 
 ### Return type
 
-[**AuthLoginPost200Response**](AuthLoginPost200Response.md)
+[**AuthGoogleGet200Response**](AuthGoogleGet200Response.md)
 
 ### Authorization
 
