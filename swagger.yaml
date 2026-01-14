@@ -9,7 +9,7 @@ definitions:
       original_url:
         type: string
     required:
-      - original_url
+    - original_url
     type: object
   requests.LoginParam:
     properties:
@@ -18,15 +18,15 @@ definitions:
       password:
         type: string
     required:
-      - email
-      - password
+    - email
+    - password
     type: object
   requests.RefreshParam:
     properties:
       refresh_token:
         type: string
     required:
-      - refresh_token
+    - refresh_token
     type: object
   requests.RegisterParam:
     properties:
@@ -37,9 +37,9 @@ definitions:
       password:
         type: string
     required:
-      - email
-      - name
-      - password
+    - email
+    - name
+    - password
     type: object
   requests.UpdateProfileParam:
     properties:
@@ -203,462 +203,493 @@ info:
     url: https://opensource.org/licenses/MIT
   termsOfService: http://swagger.io/terms/
   title: Pendek.in API
-  version: '1.0'
+  version: "1.0"
 paths:
   /{code}:
     get:
       description: Redirect to the original URL using the short code
       parameters:
-        - description: Short code
-          in: path
-          name: code
-          required: true
-          type: string
+      - description: Short code
+        in: path
+        name: code
+        required: true
+        type: string
       responses:
-        '301':
+        "301":
           description: Redirect to original URL
           schema:
             type: string
-        '404':
+        "404":
           description: Not Found
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       summary: Redirect to original URL
       tags:
-        - Redirect
+      - Redirect
   /analytics/:
     get:
       consumes:
-        - application/json
-      description:
-        Get detailed analytics including device breakdowns, countries,
+      - application/json
+      description: Get detailed analytics including device breakdowns, countries,
         traffic sources, and browser usage
       parameters:
-        - default: 30d
-          description: Time range
-          enum:
-            - 7d
-            - 30d
-            - 90d
-            - all
-          in: query
-          name: range
-          type: string
+      - default: 30d
+        description: Time range
+        enum:
+        - 7d
+        - 30d
+        - 90d
+        - all
+        in: query
+        name: range
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
-        '200':
+        "200":
           description: OK
           schema:
             allOf:
-              - $ref: '#/definitions/responses.BaseResponse'
-              - properties:
-                  data:
-                    $ref: '#/definitions/responses.AnalyticsResponse'
-                type: object
-        '401':
+            - $ref: '#/definitions/responses.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/responses.AnalyticsResponse'
+              type: object
+        "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Get analytics data
       tags:
-        - Analytics
+      - Analytics
   /analytics/dashboard:
     get:
       consumes:
-        - application/json
-      description:
-        Get dashboard overview including total clicks, active links, top
+      - application/json
+      description: Get dashboard overview including total clicks, active links, top
         link, and recent links
       produces:
-        - application/json
+      - application/json
       responses:
-        '200':
+        "200":
           description: OK
           schema:
             allOf:
-              - $ref: '#/definitions/responses.BaseResponse'
-              - properties:
-                  data:
-                    $ref: '#/definitions/responses.DashboardResponse'
-                type: object
-        '401':
+            - $ref: '#/definitions/responses.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/responses.DashboardResponse'
+              type: object
+        "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Get dashboard data
       tags:
-        - Analytics
+      - Analytics
   /auth/google:
     get:
       consumes:
-        - application/json
-      description:
-        Authenticate or register user via Google OAuth. Use without code
+      - application/json
+      description: Authenticate or register user via Google OAuth. Use without code
         param to get redirect URL, with code param to complete authentication.
       parameters:
-        - description: OAuth authorization code from Google callback
-          in: query
-          name: code
-          type: string
+      - description: OAuth authorization code from Google callback
+        in: query
+        name: code
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
-        '200':
+        "200":
           description: OK
           schema:
             allOf:
-              - $ref: '#/definitions/responses.BaseResponse'
-              - properties:
-                  data:
-                    $ref: '#/definitions/responses.LoginResponse'
-                type: object
-        '400':
+            - $ref: '#/definitions/responses.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/responses.LoginResponse'
+              type: object
+        "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       summary: Google OAuth authentication
       tags:
-        - Auth
+      - Auth
   /auth/login:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Authenticate user with email and password
       parameters:
-        - description: Login credentials
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/requests.LoginParam'
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.LoginParam'
       produces:
-        - application/json
+      - application/json
       responses:
-        '200':
+        "200":
           description: OK
           schema:
             allOf:
-              - $ref: '#/definitions/responses.BaseResponse'
-              - properties:
-                  data:
-                    $ref: '#/definitions/responses.LoginResponse'
-                type: object
-        '401':
+            - $ref: '#/definitions/responses.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/responses.LoginResponse'
+              type: object
+        "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       summary: User login
       tags:
-        - Auth
+      - Auth
   /auth/me:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Get current authenticated user profile
       produces:
-        - application/json
+      - application/json
       responses:
-        '200':
+        "200":
           description: OK
           schema:
             allOf:
-              - $ref: '#/definitions/responses.BaseResponse'
-              - properties:
-                  data:
-                    $ref: '#/definitions/responses.UserResponse'
-                type: object
-        '401':
+            - $ref: '#/definitions/responses.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/responses.UserResponse'
+              type: object
+        "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Get user profile
       tags:
-        - Auth
+      - Auth
   /auth/refresh:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Get new access token using refresh token
       parameters:
-        - description: Refresh token
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/requests.RefreshParam'
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.RefreshParam'
       produces:
-        - application/json
+      - application/json
       responses:
-        '200':
+        "200":
           description: OK
           schema:
             allOf:
-              - $ref: '#/definitions/responses.BaseResponse'
-              - properties:
-                  data:
-                    $ref: '#/definitions/responses.LoginResponse'
-                type: object
-        '401':
+            - $ref: '#/definitions/responses.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/responses.LoginResponse'
+              type: object
+        "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       summary: Refresh token
       tags:
-        - Auth
+      - Auth
   /auth/register:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Create a new user account
       parameters:
-        - description: Registration details
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/requests.RegisterParam'
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.RegisterParam'
       produces:
-        - application/json
+      - application/json
       responses:
-        '200':
+        "200":
           description: OK
           schema:
             allOf:
-              - $ref: '#/definitions/responses.BaseResponse'
-              - properties:
-                  data:
-                    $ref: '#/definitions/responses.LoginResponse'
-                type: object
-        '400':
+            - $ref: '#/definitions/responses.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/responses.LoginResponse'
+              type: object
+        "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       summary: Register new user
       tags:
-        - Auth
+      - Auth
   /auth/update-profile:
     put:
       consumes:
-        - application/json
+      - application/json
       description: Update current authenticated user profile
       parameters:
-        - description: Profile update details
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/requests.UpdateProfileParam'
+      - description: Profile update details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdateProfileParam'
       produces:
-        - application/json
+      - application/json
       responses:
-        '200':
+        "200":
           description: OK
           schema:
             allOf:
-              - $ref: '#/definitions/responses.BaseResponse'
-              - properties:
-                  data:
-                    $ref: '#/definitions/responses.UserResponse'
-                type: object
-        '400':
+            - $ref: '#/definitions/responses.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/responses.UserResponse'
+              type: object
+        "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '401':
+        "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Update user profile
       tags:
-        - Auth
+      - Auth
   /links/{id}:
-    get:
-      consumes:
-        - application/json
-      description: Get a specific link by its ID
+    delete:
+      description: Delete a shortened link by its ID
       parameters:
-        - description: Link ID
-          in: path
-          name: id
-          required: true
-          type: string
-      produces:
-        - application/json
+      - description: Link ID (UUID)
+        in: path
+        name: id
+        required: true
+        type: string
       responses:
-        '200':
-          description: OK
+        "204":
+          description: No Content
           schema:
-            allOf:
-              - $ref: '#/definitions/responses.BaseResponse'
-              - properties:
-                  data:
-                    $ref: '#/definitions/responses.LinkResponse'
-                type: object
-        '400':
+            type: string
+        "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '401':
+        "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '404':
+        "404":
           description: Not Found
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
+      summary: Delete an existing link
+      tags:
+      - Links
+    get:
+      consumes:
+      - application/json
+      description: Get a specific link by its ID
+      parameters:
+      - description: Link ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/responses.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/responses.LinkResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/responses.ErrorResponse'
+      security:
+      - BearerAuth: []
       summary: Get link by ID
       tags:
-        - Links
+      - Links
   /links/all:
     get:
       consumes:
-        - application/json
+      - application/json
       description: Get all links for the authenticated user with pagination
       parameters:
-        - default: 1
-          description: Page number
-          in: query
-          name: page
-          type: integer
-        - default: 10
-          description: Items per page
-          in: query
-          name: limit
-          type: integer
-        - description: Order by field
-          enum:
-            - created_at
-            - counts
-          in: query
-          name: orderBy
-          type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Order by field
+        enum:
+        - created_at
+        - counts
+        in: query
+        name: orderBy
+        type: string
       produces:
-        - application/json
+      - application/json
       responses:
-        '200':
+        "200":
           description: OK
           schema:
             allOf:
-              - $ref: '#/definitions/responses.BaseResponse'
-              - properties:
-                  data:
-                    items:
-                      $ref: '#/definitions/responses.LinkResponse'
-                    type: array
-                type: object
-        '400':
+            - $ref: '#/definitions/responses.BaseResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/responses.LinkResponse'
+                  type: array
+              type: object
+        "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '401':
+        "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Get all links
       tags:
-        - Links
+      - Links
   /links/create:
     post:
       consumes:
-        - application/json
+      - application/json
       description: Create a new shortened link
       parameters:
-        - description: Link details
-          in: body
-          name: request
-          required: true
-          schema:
-            $ref: '#/definitions/requests.InsertLinkParam'
+      - description: Link details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.InsertLinkParam'
       produces:
-        - application/json
+      - application/json
       responses:
-        '200':
+        "200":
           description: OK
           schema:
             allOf:
-              - $ref: '#/definitions/responses.BaseResponse'
-              - properties:
-                  data:
-                    $ref: '#/definitions/responses.LinkResponse'
-                type: object
-        '400':
+            - $ref: '#/definitions/responses.BaseResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/responses.LinkResponse'
+              type: object
+        "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '401':
+        "401":
           description: Unauthorized
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
-        '500':
+        "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/responses.ErrorResponse'
       security:
-        - BearerAuth: []
+      - BearerAuth: []
       summary: Create new link
       tags:
-        - Links
+      - Links
 securityDefinitions:
   BearerAuth:
     description: Type "Bearer" followed by a space and JWT token.
     in: header
     name: Authorization
     type: apiKey
-swagger: '2.0'
+swagger: "2.0"

@@ -2,11 +2,12 @@
 
 All URIs are relative to _http://localhost:8080_
 
-| Method                                             | HTTP request           | Description     |
-| -------------------------------------------------- | ---------------------- | --------------- |
-| [**linksAllGet**](LinksApi.md#linksallget)         | **GET** /links/all     | Get all links   |
-| [**linksCreatePost**](LinksApi.md#linkscreatepost) | **POST** /links/create | Create new link |
-| [**linksIdGet**](LinksApi.md#linksidget)           | **GET** /links/{id}    | Get link by ID  |
+| Method                                             | HTTP request           | Description             |
+| -------------------------------------------------- | ---------------------- | ----------------------- |
+| [**linksAllGet**](LinksApi.md#linksallget)         | **GET** /links/all     | Get all links           |
+| [**linksCreatePost**](LinksApi.md#linkscreatepost) | **POST** /links/create | Create new link         |
+| [**linksIdDelete**](LinksApi.md#linksiddelete)     | **DELETE** /links/{id} | Delete an existing link |
+| [**linksIdGet**](LinksApi.md#linksidget)           | **GET** /links/{id}    | Get link by ID          |
 
 ## linksAllGet
 
@@ -151,6 +152,76 @@ example().catch(console.error);
 | **200**     | OK                    | -                |
 | **400**     | Bad Request           | -                |
 | **401**     | Unauthorized          | -                |
+| **500**     | Internal Server Error | -                |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
+
+## linksIdDelete
+
+> string linksIdDelete(id)
+
+Delete an existing link
+
+Delete a shortened link by its ID
+
+### Example
+
+```ts
+import { Configuration, LinksApi } from '';
+import type { LinksIdDeleteRequest } from '';
+
+async function example() {
+  console.log('🚀 Testing  SDK...');
+  const config = new Configuration({
+    // To configure API key authorization: BearerAuth
+    apiKey: 'YOUR API KEY',
+  });
+  const api = new LinksApi(config);
+
+  const body = {
+    // string | Link ID (UUID)
+    id: id_example,
+  } satisfies LinksIdDeleteRequest;
+
+  try {
+    const data = await api.linksIdDelete(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+| Name   | Type     | Description    | Notes                     |
+| ------ | -------- | -------------- | ------------------------- |
+| **id** | `string` | Link ID (UUID) | [Defaults to `undefined`] |
+
+### Return type
+
+**string**
+
+### Authorization
+
+[BearerAuth](../README.md#BearerAuth)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: `*/*`
+
+### HTTP response details
+
+| Status code | Description           | Response headers |
+| ----------- | --------------------- | ---------------- |
+| **204**     | No Content            | -                |
+| **400**     | Bad Request           | -                |
+| **401**     | Unauthorized          | -                |
+| **404**     | Not Found             | -                |
 | **500**     | Internal Server Error | -                |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)

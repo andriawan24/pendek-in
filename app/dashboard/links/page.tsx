@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useEffectEvent, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useState } from 'react';
 import {
   Link2,
   Search,
@@ -27,15 +27,19 @@ export default function LinksPage(): React.ReactNode {
   const [links, setLinks] = useState<Link[]>([]);
   const { openNewLinkDrawer, onLinkCreated } = useNewLink();
 
-  const fetchLinks = useEffectEvent(async () => {
+  const fetchLinks = useCallback(async () => {
     try {
       const response = await getLinks();
       setLinks(response);
     } catch {}
+  }, []);
+
+  const fetchLinksFromApi = useEffectEvent(() => {
+    fetchLinks();
   });
 
   useEffect(() => {
-    fetchLinks();
+    fetchLinksFromApi();
   }, []);
 
   useEffect(() => {
@@ -43,7 +47,7 @@ export default function LinksPage(): React.ReactNode {
       fetchLinks();
     });
     return unsubscribe;
-  }, [onLinkCreated]);
+  }, [onLinkCreated, fetchLinks]);
 
   const filteredLinks = links.filter(
     (link) =>
@@ -52,8 +56,11 @@ export default function LinksPage(): React.ReactNode {
       link.custom_short_code?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const getShortCode = (link: Link) =>
+    link.custom_short_code ?? link.short_code;
+
   const handleCopy = async (link: Link) => {
-    await navigator.clipboard.writeText(buildShortLink(link.short_code));
+    await navigator.clipboard.writeText(buildShortLink(getShortCode(link)));
     setCopiedId(link.id);
     setTimeout(() => setCopiedId(null), 2000);
     toast.success('Link copied to clipboard!');
@@ -61,7 +68,6 @@ export default function LinksPage(): React.ReactNode {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-wide text-white uppercase">
@@ -77,7 +83,6 @@ export default function LinksPage(): React.ReactNode {
         </Button>
       </div>
 
-      {/* Search */}
       <div className="relative max-w-md">
         <Search className="absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-zinc-500" />
         <Input
@@ -88,9 +93,7 @@ export default function LinksPage(): React.ReactNode {
         />
       </div>
 
-      {/* Links list */}
       <div className="overflow-hidden rounded-2xl border-2 border-zinc-700 bg-zinc-900">
-        {/* Table header */}
         <div className="hidden border-b-2 border-zinc-700 bg-zinc-800/50 px-6 py-3 sm:grid sm:grid-cols-12 sm:gap-4">
           <div className="col-span-4 text-xs font-bold tracking-wider text-zinc-400 uppercase">
             Short Link
@@ -106,7 +109,6 @@ export default function LinksPage(): React.ReactNode {
           </div>
         </div>
 
-        {/* Links */}
         {filteredLinks.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <Link2 className="mb-3 h-12 w-12 text-zinc-600" />
@@ -125,11 +127,10 @@ export default function LinksPage(): React.ReactNode {
                   onClick={() => setSelectedLink(link)}
                   className="group w-full cursor-pointer px-6 py-4 text-left transition-colors hover:bg-zinc-800/50"
                 >
-                  {/* Mobile layout */}
                   <div className="sm:hidden">
                     <div className="mb-2 flex items-center justify-between">
                       <span className="text-electric-yellow font-mono text-sm font-medium">
-                        {getShortLinkBaseUrl()}/{link.short_code}
+                        {getShortLinkBaseUrl()}/{getShortCode(link)}
                       </span>
                       <div className="flex items-center gap-1 text-sm text-zinc-400">
                         {link.click_count}
@@ -153,7 +154,7 @@ export default function LinksPage(): React.ReactNode {
                       </div>
                       <div className="min-w-0">
                         <span className="text-electric-yellow font-mono text-sm font-medium">
-                          /{link.short_code}
+                          /{getShortCode(link)}
                         </span>
                       </div>
                       <button
@@ -191,14 +192,6 @@ export default function LinksPage(): React.ReactNode {
                           addSuffix: true,
                         })}
                       </span>
-                      {/* <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                        className="rounded p-1 text-zinc-500 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-zinc-700 hover:text-white"
-                      >
-                        <MoreVertical className="h-4 w-4" />
-                      </button> */}
                     </div>
                   </div>
                 </div>
@@ -213,6 +206,7 @@ export default function LinksPage(): React.ReactNode {
         link={selectedLink}
         isOpen={!!selectedLink}
         onClose={() => setSelectedLink(null)}
+        onDelete={() => fetchLinks()}
       />
     </div>
   );

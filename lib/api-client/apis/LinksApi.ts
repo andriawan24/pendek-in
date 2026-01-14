@@ -40,6 +40,10 @@ export interface LinksCreatePostRequest {
   request: RequestsInsertLinkParam;
 }
 
+export interface LinksIdDeleteRequest {
+  id: string;
+}
+
 export interface LinksIdGetRequest {
   id: string;
 }
@@ -96,6 +100,28 @@ export interface LinksApiInterface {
     requestParameters: LinksCreatePostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<LinksIdGet200Response>;
+
+  /**
+   * Delete a shortened link by its ID
+   * @summary Delete an existing link
+   * @param {string} id Link ID (UUID)
+   * @param {*} [options] Override http request option.
+   * @throws {RequiredError}
+   * @memberof LinksApiInterface
+   */
+  linksIdDeleteRaw(
+    requestParameters: LinksIdDeleteRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction
+  ): Promise<runtime.ApiResponse<void>>;
+
+  /**
+   * Delete a shortened link by its ID
+   * Delete an existing link
+   */
+  linksIdDelete(
+    requestParameters: LinksIdDeleteRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction
+  ): Promise<void>;
 
   /**
    * Get a specific link by its ID
@@ -242,6 +268,60 @@ export class LinksApi extends runtime.BaseAPI implements LinksApiInterface {
       initOverrides
     );
     return await response.value();
+  }
+
+  /**
+   * Delete a shortened link by its ID
+   * Delete an existing link
+   */
+  async linksIdDeleteRaw(
+    requestParameters: LinksIdDeleteRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction
+  ): Promise<runtime.ApiResponse<void>> {
+    if (requestParameters['id'] == null) {
+      throw new runtime.RequiredError(
+        'id',
+        'Required parameter "id" was null or undefined when calling linksIdDelete().'
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.apiKey) {
+      headerParameters['Authorization'] =
+        await this.configuration.apiKey('Authorization'); // BearerAuth authentication
+    }
+
+    let urlPath = `/links/{id}`;
+    urlPath = urlPath.replace(
+      `{${'id'}}`,
+      encodeURIComponent(String(requestParameters['id']))
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides
+    );
+
+    return new runtime.VoidApiResponse(response);
+  }
+
+  /**
+   * Delete a shortened link by its ID
+   * Delete an existing link
+   */
+  async linksIdDelete(
+    requestParameters: LinksIdDeleteRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction
+  ): Promise<void> {
+    await this.linksIdDeleteRaw(requestParameters, initOverrides);
   }
 
   /**

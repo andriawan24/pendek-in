@@ -4,6 +4,11 @@ export interface CreateLinkRequest {
   expired_at?: string;
 }
 
+export interface TypeValue {
+  type: string;
+  value: number;
+}
+
 export interface Link {
   id: string;
   original_url: string;
@@ -12,4 +17,6 @@ export interface Link {
   expired_at?: string;
   click_count?: number;
   created_at: string;
+  device_breakdowns?: TypeValue[];
+  top_countries?: TypeValue[];
 }

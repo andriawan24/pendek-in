@@ -8,6 +8,7 @@ import { LegalLinksLine } from '@/components/legal/legal-links';
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { AuthApiError, capitalizeTitle } from '@/lib/utils';
 
 function SignInPageInner() {
   const router = useRouter();
@@ -44,7 +45,11 @@ function SignInPageInner() {
       router.replace('/dashboard');
     } catch (err) {
       console.log(err);
-      setError('An unexpected error occurred. Please try again.');
+      if (err instanceof AuthApiError) {
+        setError(capitalizeTitle(err.message));
+      } else {
+        setError('An unexpected error occurred. Please try again. ' + err);
+      }
     } finally {
       setIsLoading(false);
     }

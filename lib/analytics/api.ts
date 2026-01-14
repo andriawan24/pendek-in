@@ -7,12 +7,12 @@ import {
 } from '../api-client/client';
 import { withTokenRefresh, AuthApiError } from '../auth/api';
 
-// Types for analytics data
 export interface AnalyticsSummary {
   totalClicks: number;
   activeLinks: number;
   topLink: {
     shortCode: string;
+    customShortCode: string;
     clicks: number;
   } | null;
   avgClicksPerDay: number;
@@ -60,11 +60,13 @@ export interface DashboardData {
   activeLinks: number;
   topLink: {
     shortCode: string;
+    customShortCode: string;
     clicks: number;
   } | null;
   recentLinks: Array<{
     id: string;
     shortCode: string;
+    customShortCode: string;
     originalUrl: string;
     clicks: number;
     createdAt: string;
@@ -249,6 +251,7 @@ export async function getAnalyticsData(
           topLink: data.topLink?.link
             ? {
                 shortCode: data.topLink.link.shortCode ?? '',
+                customShortCode: data.topLink.link.customShortCode ?? '',
                 clicks: data.topLink.totalClicks ?? 0,
               }
             : null,

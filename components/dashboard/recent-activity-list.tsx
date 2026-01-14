@@ -21,31 +21,6 @@ interface RecentActivityListProps {
   links?: RecentLink[];
 }
 
-// Mock data for recent links (fallback)
-const mockRecentLinks: RecentLink[] = [
-  {
-    id: '1',
-    shortCode: 'abc123',
-    originalUrl: 'https://example.com/very-long-url-that-needs-shortening',
-    clicks: 142,
-    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 min ago
-  },
-  {
-    id: '2',
-    shortCode: 'xyz789',
-    originalUrl: 'https://github.com/user/repository',
-    clicks: 87,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-  },
-  {
-    id: '3',
-    shortCode: 'def456',
-    originalUrl: 'https://docs.google.com/document/d/1234567890',
-    clicks: 56,
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(), // 5 hours ago
-  },
-];
-
 const DISPLAY_LIMIT = 3;
 
 function truncateUrl(url: string, maxLength: number = 35): string {
@@ -61,8 +36,7 @@ function truncateUrl(url: string, maxLength: number = 35): string {
 }
 
 export function RecentActivityList({ links }: RecentActivityListProps) {
-  // Use provided links or fallback to mock data
-  const recentLinks = links && links.length > 0 ? links : mockRecentLinks;
+  const recentLinks = links ?? [];
   const displayLinks = recentLinks.slice(0, DISPLAY_LIMIT);
 
   if (recentLinks.length === 0) {
@@ -83,12 +57,10 @@ export function RecentActivityList({ links }: RecentActivityListProps) {
         {displayLinks.map((link) => (
           <li key={link.id}>
             <button className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-zinc-800">
-              {/* Icon */}
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-zinc-800">
                 <Link2 className="text-periwinkle h-5 w-5" />
               </div>
 
-              {/* Link info */}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-electric-yellow font-mono text-sm font-medium">
@@ -101,7 +73,6 @@ export function RecentActivityList({ links }: RecentActivityListProps) {
                 </p>
               </div>
 
-              {/* Stats */}
               <div className="shrink-0 text-right">
                 <div className="flex items-center gap-1 text-sm text-white">
                   <MousePointerClick className="h-3 w-3 text-zinc-400" />

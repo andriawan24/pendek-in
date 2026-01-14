@@ -13,28 +13,10 @@ interface AnalyticsChartProps {
   data?: DataPoint[];
 }
 
-// Generate mock data for last 30 days (fallback)
-function generateMockData(): DataPoint[] {
-  const data: DataPoint[] = [];
-  const today = new Date();
-
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(date.getDate() - i);
-    data.push({
-      date,
-      clicks: Math.floor(Math.random() * 100) + 10,
-    });
-  }
-
-  return data;
-}
-
 export function AnalyticsChart({ data: propData }: AnalyticsChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Use provided data or generate mock data
   const data = useMemo(() => {
     if (propData && propData.length > 0) {
       return propData.map((d) => ({
@@ -42,19 +24,16 @@ export function AnalyticsChart({ data: propData }: AnalyticsChartProps) {
         clicks: d.clicks,
       }));
     }
-    return generateMockData();
+    return [];
   }, [propData]);
 
-  // Calculate trend
   const trend = useMemo(() => {
     if (data.length < 2) return 0;
     const midpoint = Math.floor(data.length / 2);
     const firstHalf = data.slice(0, midpoint);
     const secondHalf = data.slice(midpoint);
-
     const firstTotal = firstHalf.reduce((sum, d) => sum + d.clicks, 0);
     const secondTotal = secondHalf.reduce((sum, d) => sum + d.clicks, 0);
-
     if (firstTotal === 0) return 0;
     return Math.round(((secondTotal - firstTotal) / firstTotal) * 100);
   }, [data]);
