@@ -17,7 +17,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'pendek-in - Links That Work As Hard As You Do',
+  title: 'Pendek In - Links That Work As Hard As You Do',
   description:
     'Feature-rich link shortener with real-time analytics, custom QR codes, and a sleek dark dashboard. Designed for developers and creators who want outstanding tools.',
   icons: {

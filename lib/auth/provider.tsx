@@ -13,8 +13,16 @@ import {
   register as apiRegister,
   logout as apiLogout,
   loginWithGoogle as apiLoginWithGoogle,
+  updateProfile as apiUpdateProfile,
 } from './api';
 import type { AuthUser, LoginRequestBody, RegisterRequestBody } from './types';
+
+interface UpdateProfileBody {
+  name?: string;
+  email?: string;
+  password?: string;
+  profileImage?: Blob;
+}
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -22,6 +30,7 @@ interface AuthContextValue {
   login: (credentials: LoginRequestBody) => Promise<void>;
   register: (data: RegisterRequestBody) => Promise<void>;
   loginWithGoogle: (code: string) => Promise<void>;
+  updateProfile: (data: UpdateProfileBody) => Promise<void>;
   logout: () => void;
   refreshUser: () => void;
 }
@@ -52,6 +61,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(session.user);
   }, []);
 
+  const updateProfile = useCallback(async (data: UpdateProfileBody) => {
+    const updatedUser = await apiUpdateProfile(data);
+    setUser(updatedUser);
+  }, []);
+
   const logout = useCallback(() => {
     apiLogout();
     setUser(null);
@@ -74,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         loginWithGoogle,
+        updateProfile,
         logout,
         refreshUser,
       }}

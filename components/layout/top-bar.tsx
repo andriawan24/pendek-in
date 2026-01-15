@@ -81,10 +81,10 @@ export function TopBar({ onMenuClick, pageTitle = 'Dashboard' }: TopBarProps) {
       </div>
 
       <div className="flex items-center gap-3">
-        <button className="relative rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white">
+        {/* <button className="relative rounded-lg p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white">
           <Bell className="h-5 w-5" />
           <span className="bg-salmon absolute top-1.5 right-1.5 h-2 w-2 rounded-full" />
-        </button>
+        </button> */}
 
         <div ref={profileDropdownRef} className="relative">
           <button

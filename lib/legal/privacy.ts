@@ -5,7 +5,7 @@ export const PRIVACY_POLICY_DRAFT = {
     {
       heading: '1. Overview',
       body: [
-        'This Privacy Policy explains how pendek-in (“we”, “us”, “our”) collects, uses, and shares information when you use the Service.',
+        'This Privacy Policy explains how Pendek In (“we”, “us”, “our”) collects, uses, and shares information when you use the Service.',
       ],
     },
     {

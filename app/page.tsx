@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { URLShortenerDemo } from '@/components/landing/url-shortener-demo';
 import { AnimatedCounter } from '@/components/landing/animated-counter';
+import Image from 'next/image';
 
 function FeatureCard({
   icon: Icon,
@@ -198,18 +199,23 @@ function StatItem({
 function LandingNavbar({ isAuth }: { isAuth: boolean }): React.ReactNode {
   return (
     <header className="flex h-20 items-center justify-between">
-      <motion.div
+      <motion.a
+        href="/"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         className="flex items-center gap-3"
       >
-        <div className="bg-electric-yellow shadow-neo-sm flex h-11 w-11 items-center justify-center rounded-xl border-2 border-zinc-700">
-          <Scissors className="text-charcoal h-5 w-5" />
-        </div>
+        <Image
+          className="h-8 w-8"
+          src="/images/img_logo.webp"
+          width={500}
+          height={500}
+          alt="Logo Pendek In"
+        />
         <span className="text-xl font-bold tracking-tight text-white uppercase">
-          pendek-in
+          Pendek In
         </span>
-      </motion.div>
+      </motion.a>
 
       <motion.div
         initial={{ opacity: 0, x: 20 }}
@@ -274,18 +280,8 @@ export default function LandingPage() {
         <LandingNavbar isAuth={isAuth} />
 
         {/* Hero Section */}
-        <section className="py-8">
+        <section className="py-24 md:py-48">
           <div className="mx-auto max-w-3xl text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-zinc-700 bg-zinc-800/50 px-4 py-2 text-xs text-zinc-400"
-            >
-              <span className="bg-electric-yellow h-1.5 w-1.5 animate-pulse rounded-full" />
-              <span>New: Real-time analytics dashboard</span>
-            </motion.div>
-
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -308,17 +304,17 @@ export default function LandingPage() {
             </motion.p>
 
             {/* Live URL Shortener Demo */}
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
               className="mx-auto mt-10 max-w-xl"
             >
               <URLShortenerDemo />
-            </motion.div>
+            </motion.div> */}
 
             {/* Stats ticker */}
-            <motion.div
+            {/* <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
@@ -327,12 +323,12 @@ export default function LandingPage() {
               <StatItem value={1247893} label="Links created" />
               <StatItem value={47000} suffix="+" label="Active users" />
               <StatItem value={99} suffix="%" label="Uptime" />
-            </motion.div>
+            </motion.div> */}
           </div>
         </section>
 
         {/* Dashboard Preview */}
-        <section className="py-20">
+        <section className="py-8 md:py-20">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -477,7 +473,7 @@ export default function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section className="py-20">
+        <section className="py-8 md:py-20">
           <div className="text-center">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -560,7 +556,7 @@ export default function LandingPage() {
         </section>
 
         {/* How it works - Terminal style */}
-        <section className="py-20">
+        {/* <section className="py-20">
           <div className="text-center">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -584,28 +580,28 @@ export default function LandingPage() {
           <div className="mx-auto mt-12 grid max-w-3xl gap-6">
             <TerminalStep
               step={1}
-              command="pendek-in shorten https://my-very-long-url.com/path"
+              command="Pendek In shorten https://my-very-long-url.com/path"
               output="→ pendek.in/x7k9m2"
               delay={0}
             />
             <TerminalStep
               step={2}
-              command="pendek-in share x7k9m2"
+              command="Pendek In share x7k9m2"
               output="→ Link copied to clipboard"
               delay={0.15}
             />
             <TerminalStep
               step={3}
-              command="pendek-in stats x7k9m2"
+              command="Pendek In stats x7k9m2"
               output="→ 1,247 clicks | 32 countries | 89% mobile"
               delay={0.3}
             />
           </div>
-        </section>
+        </section> */}
 
         {/* CTA Section */}
         {!isAuth && (
-          <section className="py-20">
+          <section className="py-8 md:py-20">
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -646,7 +642,7 @@ export default function LandingPage() {
               <div className="bg-electric-yellow flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-700">
                 <Scissors className="text-charcoal h-4 w-4" />
               </div>
-              <span className="font-bold text-white uppercase">pendek-in</span>
+              <span className="font-bold text-white uppercase">Pendek In</span>
             </div>
 
             <div className="flex items-center gap-6 text-sm text-zinc-500">
@@ -657,7 +653,7 @@ export default function LandingPage() {
                 {isAuth ? 'Dashboard' : 'Sign in'}
               </Link>
               <span className="text-zinc-700">|</span>
-              <span>&copy; {new Date().getFullYear()} pendek-in</span>
+              <span>&copy; {new Date().getFullYear()} Pendek In</span>
             </div>
           </div>
         </footer>

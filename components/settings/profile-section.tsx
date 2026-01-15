@@ -1,48 +1,161 @@
 'use client';
 
-import { useEffect, useEffectEvent, useState } from 'react';
+import { useEffect, useEffectEvent, useState, useRef } from 'react';
+import Image from 'next/image';
 import { BentoCard } from '@/components/ui/bento-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { User, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/lib/auth';
+import { config } from '@/lib/config';
+
+const ALLOWED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/gif',
+];
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export function ProfileSection() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isVerified, setIsVerified] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | undefined>();
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const { user } = useAuth();
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user, updateProfile } = useAuth();
 
   const setupProfile = useEffectEvent(() => {
     setName(user?.name ?? '');
     setEmail(user?.email ?? '');
     setIsVerified(user?.is_verified === true);
+    setProfileImageUrl(user?.profile_image_url);
   });
 
   useEffect(() => {
     setupProfile();
   }, [user]);
 
+  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast.error('Please select a valid image file (JPG, PNG, or GIF)');
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('Image size must be less than 5MB');
+      return;
+    }
+
+    setSelectedImage(file);
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+  };
+
+  const handleImageUpload = async () => {
+    if (!selectedImage) return;
+
+    setIsUploadingImage(true);
+    try {
+      await updateProfile({ profileImage: selectedImage });
+      toast.success('Profile image updated!');
+      setSelectedImage(null);
+      setImagePreview(null);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : 'Failed to update profile image'
+      );
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   const handleSave = async () => {
+    if (!name.trim()) {
+      toast.error('Name cannot be empty');
+      return;
+    }
+
     setIsSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    toast.success('Profile updated!');
+    try {
+      await updateProfile({ name: name.trim() });
+      toast.success('Profile updated!');
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to update profile'
+      );
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
     <BentoCard title="Profile" icon={<User className="h-4 w-4" />}>
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800">
-            <User className="h-8 w-8 text-zinc-500" />
+          <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
+            {profileImageUrl ? (
+              <Image
+                src={config.apiBaseUrl + profileImageUrl}
+                alt="Profile"
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <User className="h-8 w-8 text-zinc-500" />
+            )}
           </div>
 
-          <Button variant="outline" size="sm">
-            Change Avatar
-          </Button>
+          <div className="flex flex-col gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ALLOWED_IMAGE_TYPES.join(',')}
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+            {selectedImage ? (
+              <div className="flex gap-2">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleImageUpload}
+                  isLoading={isUploadingImage}
+                >
+                  Upload
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedImage(null);
+                    setImagePreview(null);
+                  }}
+                  disabled={isUploadingImage}
+                >
+                  Cancel
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Change Avatar
+              </Button>
+            )}
+          </div>
         </div>
 
         <Input

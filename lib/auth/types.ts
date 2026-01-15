@@ -10,6 +10,7 @@ export interface AuthUser {
   email: string;
   name?: string;
   is_verified?: boolean;
+  profile_image_url?: string;
 }
 
 export interface AuthSession {

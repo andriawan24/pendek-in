@@ -42,7 +42,7 @@ export function Sidebar({ isOpen, onClose, onNewLink }: SidebarProps) {
               <Scissors className="text-charcoal h-5 w-5" />
             </div>
             <span className="text-xl font-bold tracking-tight text-white uppercase">
-              pendek-in
+              Pendek In
             </span>
           </div>
 
@@ -84,7 +84,7 @@ export function Sidebar({ isOpen, onClose, onNewLink }: SidebarProps) {
           </nav>
 
           {/* Footer */}
-          <div className="border-t-2 border-zinc-700 p-4">
+          {/* <div className="border-t-2 border-zinc-700 p-4">
             <div className="rounded-xl bg-zinc-800 p-4">
               <p className="text-xs text-zinc-400">
                 Free Plan - 10 links remaining
@@ -96,7 +96,7 @@ export function Sidebar({ isOpen, onClose, onNewLink }: SidebarProps) {
                 Upgrade to Pro
               </Link>
             </div>
-          </div>
+          </div> */}
         </div>
       </aside>
 
@@ -129,7 +129,7 @@ export function Sidebar({ isOpen, onClose, onNewLink }: SidebarProps) {
                       <Scissors className="text-charcoal h-5 w-5" />
                     </div>
                     <span className="text-xl font-bold tracking-tight text-white uppercase">
-                      pendek-in
+                      Pendek In
                     </span>
                   </div>
                   <button
@@ -179,7 +179,7 @@ export function Sidebar({ isOpen, onClose, onNewLink }: SidebarProps) {
                 </nav>
 
                 {/* Footer */}
-                <div className="border-t-2 border-zinc-700 p-4">
+                {/* <div className="border-t-2 border-zinc-700 p-4">
                   <div className="rounded-xl bg-zinc-800 p-4">
                     <p className="text-xs text-zinc-400">
                       Free Plan - 10 links remaining
@@ -191,7 +191,7 @@ export function Sidebar({ isOpen, onClose, onNewLink }: SidebarProps) {
                       Upgrade to Pro
                     </Link>
                   </div>
-                </div>
+                </div> */}
               </div>
             </motion.aside>
           </>

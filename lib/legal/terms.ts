@@ -3,9 +3,9 @@ export const TERMS_AND_CONDITIONS_DRAFT = {
   updatedAt: 'December 14, 2025',
   sections: [
     {
-      heading: '1. About pendek-in',
+      heading: '1. About Pendek In',
       body: [
-        'pendek-in (“we”, “us”, “our”) provides a link-shortening and analytics product (the “Service”). These Terms govern your use of the Service.',
+        'Pendek In (“we”, “us”, “our”) provides a link-shortening and analytics product (the “Service”). These Terms govern your use of the Service.',
       ],
     },
     {

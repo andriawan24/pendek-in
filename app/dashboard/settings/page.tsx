@@ -9,8 +9,8 @@ export default function SettingsPage() {
     <div className="space-y-8">
       <SettingsHeader />
       <ProfileSection />
-      <PreferencesSection />
-      <ApiKeysSection />
+      {/* <PreferencesSection />
+      <ApiKeysSection /> */}
       <DangerZoneSection />
     </div>
   );
