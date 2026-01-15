@@ -290,11 +290,13 @@ export async function getDashboardData(): Promise<DashboardData> {
           ? {
               shortCode: data.topLink.link.shortCode ?? '',
               clicks: data.topLink.totalClicks ?? 0,
+              customShortCode: data.topLink.link.customShortCode ?? '',
             }
           : null,
         recentLinks: (data.recents ?? []).map((link) => ({
           id: link.id ?? '',
           shortCode: link.shortCode ?? '',
+          customShortCode: link.customShortCode ?? '',
           originalUrl: link.originalUrl ?? '',
           clicks: link.clickCount ?? 0,
           createdAt: link.createdAt ?? '',
