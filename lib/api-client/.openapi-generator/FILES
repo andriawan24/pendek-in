@@ -17,7 +17,6 @@ docs/RequestsInsertLinkParam.md
 docs/RequestsLoginParam.md
 docs/RequestsRefreshParam.md
 docs/RequestsRegisterParam.md
-docs/RequestsUpdateProfileParam.md
 docs/ResponsesAnalyticOverview.md
 docs/ResponsesAnalyticsResponse.md
 docs/ResponsesBaseResponse.md
@@ -39,7 +38,6 @@ models/RequestsInsertLinkParam.ts
 models/RequestsLoginParam.ts
 models/RequestsRefreshParam.ts
 models/RequestsRegisterParam.ts
-models/RequestsUpdateProfileParam.ts
 models/ResponsesAnalyticOverview.ts
 models/ResponsesAnalyticsResponse.ts
 models/ResponsesBaseResponse.ts

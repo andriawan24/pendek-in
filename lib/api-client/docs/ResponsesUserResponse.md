@@ -2,13 +2,14 @@
 
 ## Properties
 
-| Name         | Type    |
-| ------------ | ------- |
-| `email`      | string  |
-| `id`         | string  |
-| `isActive`   | boolean |
-| `isVerified` | boolean |
-| `name`       | string  |
+| Name              | Type    |
+| ----------------- | ------- |
+| `email`           | string  |
+| `id`              | string  |
+| `isActive`        | boolean |
+| `isVerified`      | boolean |
+| `name`            | string  |
+| `profileImageUrl` | string  |
 
 ## Example
 
@@ -22,6 +23,7 @@ const example = {
   isActive: null,
   isVerified: null,
   name: null,
+  profileImageUrl: null,
 } satisfies ResponsesUserResponse;
 
 console.log(example);

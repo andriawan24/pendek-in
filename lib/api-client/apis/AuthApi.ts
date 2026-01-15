@@ -19,7 +19,6 @@ import type {
   RequestsLoginParam,
   RequestsRefreshParam,
   RequestsRegisterParam,
-  RequestsUpdateProfileParam,
   ResponsesErrorResponse,
 } from '../models/index';
 import {
@@ -33,8 +32,6 @@ import {
   RequestsRefreshParamToJSON,
   RequestsRegisterParamFromJSON,
   RequestsRegisterParamToJSON,
-  RequestsUpdateProfileParamFromJSON,
-  RequestsUpdateProfileParamToJSON,
   ResponsesErrorResponseFromJSON,
   ResponsesErrorResponseToJSON,
 } from '../models/index';
@@ -56,7 +53,10 @@ export interface AuthRegisterPostRequest {
 }
 
 export interface AuthUpdateProfilePutRequest {
-  request: RequestsUpdateProfileParam;
+  name?: string;
+  email?: string;
+  password?: string;
+  profileImage?: Blob;
 }
 
 /**
@@ -174,9 +174,12 @@ export interface AuthApiInterface {
   ): Promise<AuthGoogleGet200Response>;
 
   /**
-   * Update current authenticated user profile
+   * Update current authenticated user profile with optional profile image upload
    * @summary Update user profile
-   * @param {RequestsUpdateProfileParam} request Profile update details
+   * @param {string} [name] User name
+   * @param {string} [email] User email
+   * @param {string} [password] User password
+   * @param {Blob} [profileImage] Profile image file (jpg, jpeg, png, gif)
    * @param {*} [options] Override http request option.
    * @throws {RequiredError}
    * @memberof AuthApiInterface
@@ -187,7 +190,7 @@ export interface AuthApiInterface {
   ): Promise<runtime.ApiResponse<AuthMeGet200Response>>;
 
   /**
-   * Update current authenticated user profile
+   * Update current authenticated user profile with optional profile image upload
    * Update user profile
    */
   authUpdateProfilePut(
@@ -455,29 +458,55 @@ export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
   }
 
   /**
-   * Update current authenticated user profile
+   * Update current authenticated user profile with optional profile image upload
    * Update user profile
    */
   async authUpdateProfilePutRaw(
     requestParameters: AuthUpdateProfilePutRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<AuthMeGet200Response>> {
-    if (requestParameters['request'] == null) {
-      throw new runtime.RequiredError(
-        'request',
-        'Required parameter "request" was null or undefined when calling authUpdateProfilePut().'
-      );
-    }
-
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
 
-    headerParameters['Content-Type'] = 'application/json';
-
     if (this.configuration && this.configuration.apiKey) {
       headerParameters['Authorization'] =
         await this.configuration.apiKey('Authorization'); // BearerAuth authentication
+    }
+
+    const consumes: runtime.Consume[] = [
+      { contentType: 'multipart/form-data' },
+    ];
+    // @ts-ignore: canConsumeForm may be unused
+    const canConsumeForm = runtime.canConsumeForm(consumes);
+
+    let formParams: { append(param: string, value: any): any };
+    let useForm = false;
+    // use FormData to transmit files using content-type "multipart/form-data"
+    useForm = canConsumeForm;
+    if (useForm) {
+      formParams = new FormData();
+    } else {
+      formParams = new URLSearchParams();
+    }
+
+    if (requestParameters['name'] != null) {
+      formParams.append('name', requestParameters['name'] as any);
+    }
+
+    if (requestParameters['email'] != null) {
+      formParams.append('email', requestParameters['email'] as any);
+    }
+
+    if (requestParameters['password'] != null) {
+      formParams.append('password', requestParameters['password'] as any);
+    }
+
+    if (requestParameters['profileImage'] != null) {
+      formParams.append(
+        'profile_image',
+        requestParameters['profileImage'] as any
+      );
     }
 
     let urlPath = `/auth/update-profile`;
@@ -488,7 +517,7 @@ export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
-        body: RequestsUpdateProfileParamToJSON(requestParameters['request']),
+        body: formParams,
       },
       initOverrides
     );
@@ -499,11 +528,11 @@ export class AuthApi extends runtime.BaseAPI implements AuthApiInterface {
   }
 
   /**
-   * Update current authenticated user profile
+   * Update current authenticated user profile with optional profile image upload
    * Update user profile
    */
   async authUpdateProfilePut(
-    requestParameters: AuthUpdateProfilePutRequest,
+    requestParameters: AuthUpdateProfilePutRequest = {},
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<AuthMeGet200Response> {
     const response = await this.authUpdateProfilePutRaw(

@@ -49,6 +49,12 @@ export interface ResponsesUserResponse {
    * @memberof ResponsesUserResponse
    */
   name?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof ResponsesUserResponse
+   */
+  profileImageUrl?: string;
 }
 
 /**
@@ -79,6 +85,8 @@ export function ResponsesUserResponseFromJSONTyped(
     isActive: json['is_active'] == null ? undefined : json['is_active'],
     isVerified: json['is_verified'] == null ? undefined : json['is_verified'],
     name: json['name'] == null ? undefined : json['name'],
+    profileImageUrl:
+      json['profile_image_url'] == null ? undefined : json['profile_image_url'],
   };
 }
 
@@ -100,5 +108,6 @@ export function ResponsesUserResponseToJSONTyped(
     is_active: value['isActive'],
     is_verified: value['isVerified'],
     name: value['name'],
+    profile_image_url: value['profileImageUrl'],
   };
 }

@@ -339,32 +339,35 @@ No authorization required
 
 ## authUpdateProfilePut
 
-> AuthMeGet200Response authUpdateProfilePut(request)
+> AuthMeGet200Response authUpdateProfilePut(name, email, password, profileImage)
 
 Update user profile
 
-Update current authenticated user profile
+Update current authenticated user profile with optional profile image upload
 
 ### Example
 
 ```ts
-import {
-  Configuration,
-  AuthApi,
-} from '';
+import { Configuration, AuthApi } from '';
 import type { AuthUpdateProfilePutRequest } from '';
 
 async function example() {
-  console.log("🚀 Testing  SDK...");
+  console.log('🚀 Testing  SDK...');
   const config = new Configuration({
     // To configure API key authorization: BearerAuth
-    apiKey: "YOUR API KEY",
+    apiKey: 'YOUR API KEY',
   });
   const api = new AuthApi(config);
 
   const body = {
-    // RequestsUpdateProfileParam | Profile update details
-    request: ...,
+    // string | User name (optional)
+    name: name_example,
+    // string | User email (optional)
+    email: email_example,
+    // string | User password (optional)
+    password: password_example,
+    // Blob | Profile image file (jpg, jpeg, png, gif) (optional)
+    profileImage: BINARY_DATA_HERE,
   } satisfies AuthUpdateProfilePutRequest;
 
   try {
@@ -381,9 +384,12 @@ example().catch(console.error);
 
 ### Parameters
 
-| Name        | Type                                                        | Description            | Notes |
-| ----------- | ----------------------------------------------------------- | ---------------------- | ----- |
-| **request** | [RequestsUpdateProfileParam](RequestsUpdateProfileParam.md) | Profile update details |       |
+| Name             | Type     | Description                              | Notes                                |
+| ---------------- | -------- | ---------------------------------------- | ------------------------------------ |
+| **name**         | `string` | User name                                | [Optional] [Defaults to `undefined`] |
+| **email**        | `string` | User email                               | [Optional] [Defaults to `undefined`] |
+| **password**     | `string` | User password                            | [Optional] [Defaults to `undefined`] |
+| **profileImage** | `Blob`   | Profile image file (jpg, jpeg, png, gif) | [Optional] [Defaults to `undefined`] |
 
 ### Return type
 
@@ -395,7 +401,7 @@ example().catch(console.error);
 
 ### HTTP request headers
 
-- **Content-Type**: `application/json`
+- **Content-Type**: `multipart/form-data`
 - **Accept**: `application/json`
 
 ### HTTP response details

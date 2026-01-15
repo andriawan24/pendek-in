@@ -10,7 +10,6 @@ export * from './RequestsInsertLinkParam';
 export * from './RequestsLoginParam';
 export * from './RequestsRefreshParam';
 export * from './RequestsRegisterParam';
-export * from './RequestsUpdateProfileParam';
 export * from './ResponsesAnalyticOverview';
 export * from './ResponsesAnalyticsResponse';
 export * from './ResponsesBaseResponse';

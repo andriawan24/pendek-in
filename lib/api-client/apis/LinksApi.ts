@@ -112,7 +112,7 @@ export interface LinksApiInterface {
   linksIdDeleteRaw(
     requestParameters: LinksIdDeleteRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<runtime.ApiResponse<void>>;
+  ): Promise<runtime.ApiResponse<string>>;
 
   /**
    * Delete a shortened link by its ID
@@ -121,7 +121,7 @@ export interface LinksApiInterface {
   linksIdDelete(
     requestParameters: LinksIdDeleteRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<void>;
+  ): Promise<string>;
 
   /**
    * Get a specific link by its ID
@@ -277,7 +277,7 @@ export class LinksApi extends runtime.BaseAPI implements LinksApiInterface {
   async linksIdDeleteRaw(
     requestParameters: LinksIdDeleteRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<runtime.ApiResponse<void>> {
+  ): Promise<runtime.ApiResponse<string>> {
     if (requestParameters['id'] == null) {
       throw new runtime.RequiredError(
         'id',
@@ -310,7 +310,11 @@ export class LinksApi extends runtime.BaseAPI implements LinksApiInterface {
       initOverrides
     );
 
-    return new runtime.VoidApiResponse(response);
+    if (this.isJsonMime(response.headers.get('content-type'))) {
+      return new runtime.JSONApiResponse<string>(response);
+    } else {
+      return new runtime.TextApiResponse(response) as any;
+    }
   }
 
   /**
@@ -320,8 +324,12 @@ export class LinksApi extends runtime.BaseAPI implements LinksApiInterface {
   async linksIdDelete(
     requestParameters: LinksIdDeleteRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
-  ): Promise<void> {
-    await this.linksIdDeleteRaw(requestParameters, initOverrides);
+  ): Promise<string> {
+    const response = await this.linksIdDeleteRaw(
+      requestParameters,
+      initOverrides
+    );
+    return await response.value();
   }
 
   /**
