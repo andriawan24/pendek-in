@@ -228,7 +228,6 @@ export function LinkDetailsDrawer({
   const currentLink = linkDetails || link;
   const fullUrl = buildShortLink(getShortCode(currentLink));
 
-  // Calculate total for percentages
   const deviceTotal =
     currentLink.device_breakdowns?.reduce((sum, d) => sum + d.value, 0) || 0;
   const countryTotal =
