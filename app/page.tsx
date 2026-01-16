@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
 import { useState, useEffect, useRef, useEffectEvent } from 'react';
@@ -16,7 +17,6 @@ import {
   Smartphone,
   Zap,
 } from 'lucide-react';
-import { URLShortenerDemo } from '@/components/landing/url-shortener-demo';
 import { AnimatedCounter } from '@/components/landing/animated-counter';
 import Image from 'next/image';
 
@@ -615,7 +615,7 @@ export default function LandingPage() {
                 Ready to get started?
               </h2>
               <p className="relative mx-auto mt-4 max-w-md text-zinc-400">
-                Start for free. No credit card required. Upgrade anytime.
+                Start for free. No credit card required.
               </p>
 
               <div className="relative mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -627,10 +627,6 @@ export default function LandingPage() {
                   <ArrowRight className="h-5 w-5" />
                 </Link>
               </div>
-
-              <p className="relative mt-6 text-xs text-zinc-500">
-                Join 47,000+ developers and creators
-              </p>
             </motion.div>
           </section>
         )}

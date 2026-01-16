@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { BentoCard } from '@/components/ui/bento-card';
 import { Share2 } from 'lucide-react';
 import type { ReferrerData } from '@/lib/analytics';
+import { capitalizeTitle } from '@/lib/utils';
 
 interface ReferrerSourcesProps {
   data: ReferrerData[];
@@ -29,7 +30,7 @@ export function ReferrerSources({ data }: ReferrerSourcesProps) {
             >
               <div className="flex items-center justify-between">
                 <span className="font-medium text-white">
-                  {referrer.source}
+                  {capitalizeTitle(referrer.source)}
                 </span>
                 <span className="text-sm text-zinc-400">
                   {referrer.clicks.toLocaleString()}

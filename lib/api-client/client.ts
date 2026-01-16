@@ -5,7 +5,13 @@
  * with authentication handling and base URL configuration.
  */
 
-import { Configuration, AuthApi, LinksApi, AnalyticsApi } from './index';
+import {
+  Configuration,
+  AuthApi,
+  LinksApi,
+  AnalyticsApi,
+  RedirectApi,
+} from './index';
 
 const getApiBaseUrl = (): string => {
   if (typeof window !== 'undefined') {
@@ -76,8 +82,9 @@ export function createAuthenticatedConfig(): Configuration {
   });
 }
 
-// Public API instances (for login/register)
+// Public API instances (for login/register and redirect)
 export const publicAuthApi = new AuthApi(createPublicConfig());
+export const publicRedirectApi = new RedirectApi(createPublicConfig());
 
 // Authenticated API instances (created on-demand to get fresh token)
 export function getAuthApi(): AuthApi {
@@ -90,6 +97,10 @@ export function getLinksApi(): LinksApi {
 
 export function getAnalyticsApi(): AnalyticsApi {
   return new AnalyticsApi(createAuthenticatedConfig());
+}
+
+export function getRedirectApi(): RedirectApi {
+  return new RedirectApi(createPublicConfig());
 }
 
 // Re-export types

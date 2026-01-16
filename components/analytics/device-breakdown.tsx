@@ -31,10 +31,12 @@ const deviceConfig = {
 };
 
 export function DeviceBreakdown({ data }: DeviceBreakdownProps) {
+  const deviceTotal = data.desktop + data.mobile + data.tablet;
+
   const devices = [
-    { key: 'mobile' as const, value: data.mobile },
-    { key: 'desktop' as const, value: data.desktop },
-    { key: 'tablet' as const, value: data.tablet },
+    { key: 'mobile' as const, value: (data.mobile / deviceTotal) * 100 },
+    { key: 'desktop' as const, value: (data.desktop / deviceTotal) * 100 },
+    { key: 'tablet' as const, value: (data.tablet / deviceTotal) * 100 },
   ];
 
   return (

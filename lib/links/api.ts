@@ -7,9 +7,6 @@ import {
 import { withTokenRefresh, AuthApiError } from '../auth/api';
 import type { CreateLinkRequest, Link } from './types';
 
-/**
- * Convert API response to LinkResponse type
- */
 function mapLinkResponse(link: ResponsesLinkResponse): Link {
   return {
     id: link.id ?? '',
@@ -22,9 +19,6 @@ function mapLinkResponse(link: ResponsesLinkResponse): Link {
   };
 }
 
-/**
- * Handle API errors
- */
 async function handleApiError(error: unknown): Promise<never> {
   if (error instanceof ResponseError) {
     let errorMessage = `Request failed with status ${error.response.status}`;

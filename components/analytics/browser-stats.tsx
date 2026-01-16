@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { BentoCard } from '@/components/ui/bento-card';
 import { Chrome } from 'lucide-react';
 import type { BrowserData } from '@/lib/analytics';
+import { capitalizeTitle } from '@/lib/utils';
 
 interface BrowserStatsProps {
   data: BrowserData[];
@@ -30,7 +31,9 @@ export function BrowserStats({ data }: BrowserStatsProps) {
             className="space-y-1"
           >
             <div className="flex items-center justify-between">
-              <span className="font-medium text-white">{browser.name}</span>
+              <span className="font-medium text-white">
+                {capitalizeTitle(browser.name)}
+              </span>
               <span className="text-sm text-zinc-400">
                 {browser.percentage}%
               </span>

@@ -1,22 +1,29 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { GoogleSignInButton } from '@/components/auth/google-signin-button';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LegalLinksLine } from '@/components/legal/legal-links';
 import { useAuth } from '@/lib/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AuthApiError, capitalizeTitle } from '@/lib/utils';
 
 function SignInPageInner() {
   const router = useRouter();
+  const param = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const { login } = useAuth();
+
+  useEffect(() => {
+    if (param.has('error')) {
+      setError(param.get('error'));
+    }
+  }, [param]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

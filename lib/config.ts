@@ -37,7 +37,38 @@ export function buildShortLink(shortCode: string): string {
   return `${baseUrl}/${shortCode}`;
 }
 
+/**
+ * Reserved routes that cannot be used as custom short codes.
+ * These routes are used by the application for navigation.
+ */
+export const RESERVED_ROUTES = [
+  'dashboard',
+  'sign-in',
+  'sign-up',
+  'auth',
+  'api',
+  'settings',
+  'analytics',
+  'links',
+  'upgrade',
+  'admin',
+  'help',
+  'about',
+  'privacy',
+  'terms',
+] as const;
+
+/**
+ * Check if a short code is a reserved route.
+ */
+export function isReservedRoute(code: string): boolean {
+  return RESERVED_ROUTES.includes(
+    code.toLowerCase() as (typeof RESERVED_ROUTES)[number]
+  );
+}
+
 export const config = {
   shortLinkBaseUrl: getShortLinkBaseUrl(),
   apiBaseUrl: getApiBaseUrl(),
+  reservedRoutes: RESERVED_ROUTES,
 } as const;

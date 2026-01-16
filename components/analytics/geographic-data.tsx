@@ -4,12 +4,12 @@ import { motion } from 'motion/react';
 import { BentoCard } from '@/components/ui/bento-card';
 import { Globe } from 'lucide-react';
 import type { CountryData } from '@/lib/analytics';
+import { capitalizeTitle } from '@/lib/utils';
 
 interface GeographicDataProps {
   data: CountryData[];
 }
 
-// Country flag emoji lookup
 const countryFlags: Record<string, string> = {
   US: '\uD83C\uDDFA\uD83C\uDDF8',
   GB: '\uD83C\uDDEC\uD83C\uDDE7',
@@ -39,7 +39,9 @@ export function GeographicData({ data }: GeographicDataProps) {
               <span className="text-xl">
                 {countryFlags[country.code] || '\uD83C\uDFF3\uFE0F'}
               </span>
-              <span className="font-medium text-white">{country.name}</span>
+              <span className="font-medium text-white">
+                {capitalizeTitle(country.name)}
+              </span>
             </div>
             <div className="text-right">
               <p className="font-bold text-white">

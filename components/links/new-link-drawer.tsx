@@ -6,10 +6,10 @@ import { X, Link2, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { AuthApiError, capitalizeTitle, cn } from '@/lib/utils';
 import { createLink } from '@/lib/links/api';
 import { Link } from '@/lib/links/types';
-import { getShortLinkBaseUrl } from '@/lib/config';
+import { getShortLinkBaseUrl, isReservedRoute } from '@/lib/config';
 
 interface NewLinkDrawerProps {
   isOpen: boolean;
@@ -98,6 +98,13 @@ export function NewLinkDrawer({
       return;
     }
 
+    if (customCode && isReservedRoute(customCode)) {
+      setError(
+        'This custom code is reserved and cannot be used. Please choose a different one.'
+      );
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -117,7 +124,11 @@ export function NewLinkDrawer({
       onClose();
     } catch (err) {
       console.error(err);
-      setError('Failed to create link. Please try again.');
+      if (err instanceof AuthApiError) {
+        setError(`Failed to create link: ${capitalizeTitle(err.message)}`);
+      } else {
+        setError(`Failed to create link.`);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -130,7 +141,6 @@ export function NewLinkDrawer({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -139,7 +149,6 @@ export function NewLinkDrawer({
             className="fixed inset-0 z-40 cursor-pointer bg-black/60"
           />
 
-          {/* Drawer */}
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
@@ -151,7 +160,7 @@ export function NewLinkDrawer({
               'lg:w-[400px]'
             )}
           >
-            <div className="flex h-full flex-col">
+            <div className="flex h-full flex-col overflow-y-scroll">
               <div className="flex items-center justify-between border-b-2 border-zinc-700 p-4">
                 <h2 className="text-lg font-bold tracking-wide text-white uppercase">
                   New Link
