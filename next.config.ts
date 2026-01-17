@@ -5,13 +5,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**',
-        port: '',
-        pathname: '**',
+        hostname: 'link.andriawan.dev',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.fawwaz-api.online',
       },
       {
         protocol: 'http',
-        hostname: '**',
+        hostname: 'localhost',
         port: '8080',
         pathname: '**',
       },

@@ -1,11 +1,11 @@
 import {
   getAnalyticsApi,
-  ResponseError,
   AnalyticsGetRangeEnum,
   ResponsesTypeValue,
   ResponsesAnalyticOverview,
 } from '../api-client/client';
 import { withTokenRefresh, AuthApiError } from '../auth/api';
+import { handleApiError } from '../utils/api-error';
 
 export interface AnalyticsSummary {
   totalClicks: number;
@@ -72,37 +72,6 @@ export interface DashboardData {
     createdAt: string;
   }>;
   overviews: TimeSeriesDataPoint[];
-}
-
-/**
- * Handle API errors
- */
-async function handleApiError(error: unknown): Promise<never> {
-  if (error instanceof ResponseError) {
-    let errorMessage = `Request failed with status ${error.response.status}`;
-    let errorData: unknown;
-
-    try {
-      errorData = await error.response.json();
-      if (
-        typeof errorData === 'object' &&
-        errorData !== null &&
-        'message' in errorData
-      ) {
-        errorMessage = String((errorData as { message: string }).message);
-      }
-    } catch {
-      errorMessage = error.response.statusText || errorMessage;
-    }
-
-    throw new AuthApiError(errorMessage, error.response.status, errorData);
-  }
-
-  if (error instanceof Error) {
-    throw new AuthApiError(error.message);
-  }
-
-  throw new AuthApiError('Unknown error occurred');
 }
 
 /**

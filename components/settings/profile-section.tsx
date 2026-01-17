@@ -27,6 +27,7 @@ export function ProfileSection() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user, updateProfile } = useAuth();
 
@@ -35,6 +36,7 @@ export function ProfileSection() {
     setEmail(user?.email ?? '');
     setIsVerified(user?.is_verified === true);
     setProfileImageUrl(user?.profile_image_url);
+    setIsLoading(false);
   });
 
   useEffect(() => {
@@ -101,87 +103,106 @@ export function ProfileSection() {
 
   return (
     <BentoCard title="Profile" icon={<User className="h-4 w-4" />}>
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
-            {profileImageUrl ? (
-              <Image
-                src={config.apiBaseUrl + profileImageUrl}
-                alt="Profile"
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <User className="h-8 w-8 text-zinc-500" />
-            )}
+      {isLoading ? (
+        <div className="animate-pulse space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-zinc-800" />
+            <div className="h-8 w-32 rounded bg-zinc-800" />
           </div>
+          <div className="h-12 w-full rounded-xl bg-zinc-800" />
+          <div className="h-12 w-full rounded-xl bg-zinc-800" />
+          <div className="h-10 w-32 rounded-xl bg-zinc-800" />
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-zinc-800">
+              {imagePreview ? (
+                <Image
+                  src={imagePreview}
+                  alt="Profile preview"
+                  fill
+                  className="object-cover"
+                />
+              ) : profileImageUrl ? (
+                <Image
+                  src={config.apiBaseUrl + profileImageUrl}
+                  alt="Profile"
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <User className="h-8 w-8 text-zinc-500" />
+              )}
+            </div>
 
-          <div className="flex flex-col gap-2">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept={ALLOWED_IMAGE_TYPES.join(',')}
-              onChange={handleImageSelect}
-              className="hidden"
-            />
-            {selectedImage ? (
-              <div className="flex gap-2">
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={handleImageUpload}
-                  isLoading={isUploadingImage}
-                >
-                  Upload
-                </Button>
+            <div className="flex flex-col gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={ALLOWED_IMAGE_TYPES.join(',')}
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+              {selectedImage ? (
+                <div className="flex gap-2">
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={handleImageUpload}
+                    isLoading={isUploadingImage}
+                  >
+                    Upload
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedImage(null);
+                      setImagePreview(null);
+                    }}
+                    disabled={isUploadingImage}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              ) : (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    setSelectedImage(null);
-                    setImagePreview(null);
-                  }}
-                  disabled={isUploadingImage}
+                  onClick={() => fileInputRef.current?.click()}
                 >
-                  Cancel
+                  Change Avatar
                 </Button>
-              </div>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                Change Avatar
-              </Button>
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        <Input
-          label="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+          <Input
+            label="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
 
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-zinc-400">
-            Email
-          </label>
-          <div className="flex items-center gap-2">
-            <span className="text-white">{email}</span>
-            {isVerified && (
-              <span className="flex items-center gap-1 text-xs text-green-500">
-                <Check className="h-3 w-3" /> Verified
-              </span>
-            )}
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-zinc-400">
+              Email
+            </label>
+            <div className="flex items-center gap-2">
+              <span className="text-white">{email}</span>
+              {isVerified && (
+                <span className="flex items-center gap-1 text-xs text-green-500">
+                  <Check className="h-3 w-3" /> Verified
+                </span>
+              )}
+            </div>
           </div>
-        </div>
 
-        <Button onClick={handleSave} isLoading={isSaving}>
-          Save Changes
-        </Button>
-      </div>
+          <Button onClick={handleSave} isLoading={isSaving}>
+            Save Changes
+          </Button>
+        </div>
+      )}
     </BentoCard>
   );
 }

@@ -51,7 +51,6 @@ function SignInPageInner() {
 
       router.replace('/dashboard');
     } catch (err) {
-      console.log(err);
       if (err instanceof AuthApiError) {
         setError(capitalizeTitle(err.message));
       } else {

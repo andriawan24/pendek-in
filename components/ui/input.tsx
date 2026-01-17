@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef } from 'react';
+import { forwardRef, useId } from 'react';
 import { cn } from '@/lib/utils';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -9,7 +9,10 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, error, label, id, ...props }, ref) => {
+  ({ className, error, label, id: providedId, ...props }, ref) => {
+    const generatedId = useId();
+    const id = providedId ?? generatedId;
+
     return (
       <div className="w-full">
         {label && (

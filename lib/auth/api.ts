@@ -1,47 +1,17 @@
-import { publicAuthApi, getAuthApi, ResponseError } from '../api-client/client';
+import { publicAuthApi, getAuthApi } from '../api-client/client';
 import { sessionManager } from './session';
 import type { AuthSession, AuthTokens } from './types';
+import { ApiError, handleApiError } from '../utils/api-error';
 
-export class AuthApiError extends Error {
+export class AuthApiError extends ApiError {
   constructor(
     message: string,
     public statusCode?: number,
     public response?: unknown
   ) {
-    super(message);
+    super(message, statusCode, response);
     this.name = 'AuthApiError';
   }
-}
-
-/**
- * Handle API errors and convert to AuthApiError
- */
-async function handleApiError(error: unknown): Promise<never> {
-  if (error instanceof ResponseError) {
-    let errorMessage = `Request failed with status ${error.response.status}`;
-    let errorData: unknown;
-
-    try {
-      errorData = await error.response.json();
-      if (
-        typeof errorData === 'object' &&
-        errorData !== null &&
-        'message' in errorData
-      ) {
-        errorMessage = String((errorData as { message: string }).message);
-      }
-    } catch {
-      errorMessage = error.response.statusText || errorMessage;
-    }
-
-    throw new AuthApiError(errorMessage, error.response.status, errorData);
-  }
-
-  if (error instanceof Error) {
-    throw new AuthApiError(error.message);
-  }
-
-  throw new AuthApiError('Unknown error occurred');
 }
 
 /**

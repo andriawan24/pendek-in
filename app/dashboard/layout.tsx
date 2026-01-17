@@ -16,7 +16,6 @@ function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    console.log('Called ' + isAuthenticated);
     if (!isAuthenticated) {
       router.replace('/sign-in');
     }

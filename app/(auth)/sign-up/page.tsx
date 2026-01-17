@@ -52,8 +52,7 @@ function SignUpPageInner() {
       });
 
       router.replace('/dashboard');
-    } catch (err) {
-      console.log(err);
+    } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
