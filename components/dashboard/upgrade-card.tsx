@@ -82,7 +82,7 @@ export function UpgradeCard() {
       </div>
 
       {/* Gradient border effect */}
-      <div className="from-electric-yellow/20 to-salmon/20 absolute inset-0 -z-10 rounded-2xl bg-gradient-to-br via-transparent opacity-50" />
+      <div className="from-electric-yellow/20 to-salmon/20 absolute inset-0 -z-10 rounded-2xl bg-linear-to-br via-transparent opacity-50" />
     </div>
   );
 }

@@ -1,9 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client';
 
-import { useState, useEffect, useRef, useEffectEvent } from 'react';
+import { useState, useEffect, useEffectEvent } from 'react';
 import Link from 'next/link';
-import { motion, useInView } from 'motion/react';
+import { motion } from 'motion/react';
 import { useAuth } from '@/lib/auth';
 import {
   ArrowRight,
@@ -17,243 +16,23 @@ import {
   Smartphone,
   Zap,
 } from 'lucide-react';
-import { AnimatedCounter } from '@/components/landing/animated-counter';
-import Image from 'next/image';
-
-function FeatureCard({
-  icon: Icon,
-  title,
-  description,
-  visual,
-  delay = 0,
-}: {
-  icon: React.ElementType;
-  title: string;
-  description: string;
-  visual: React.ReactNode;
-  delay?: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 30 }}
-      animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.5, delay }}
-      className="card-tilt shadow-neo-lg group rounded-2xl border-2 border-zinc-700 bg-zinc-900 p-6"
-    >
-      <div className="mb-4 h-40 overflow-hidden rounded-xl border-2 border-zinc-700 bg-zinc-800">
-        {visual}
-      </div>
-      <div className="text-electric-yellow flex h-10 w-10 items-center justify-center rounded-xl border-2 border-zinc-700 bg-zinc-800 transition-transform group-hover:scale-110">
-        <Icon className="h-5 w-5" />
-      </div>
-      <h3 className="mt-4 text-lg font-bold text-white">{title}</h3>
-      <p className="mt-2 text-sm text-zinc-400">{description}</p>
-    </motion.div>
-  );
-}
-
-function MiniChartVisual() {
-  const bars = [40, 65, 45, 80, 55, 90, 70];
-
-  return (
-    <div className="flex h-full items-end justify-around gap-2 p-4">
-      {bars.map((height, i) => (
-        <motion.div
-          key={i}
-          initial={{ height: 0 }}
-          whileInView={{ height: `${height}%` }}
-          transition={{ duration: 0.5, delay: i * 0.1 }}
-          viewport={{ once: true }}
-          className="bg-electric-yellow w-6 rounded-t"
-        />
-      ))}
-    </div>
-  );
-}
-
-function QRCodeVisual() {
-  return (
-    <div className="flex h-full items-center justify-center p-4">
-      <motion.div
-        initial={{ scale: 0, rotate: -180 }}
-        whileInView={{ scale: 1, rotate: 0 }}
-        transition={{ duration: 0.6, type: 'spring' }}
-        viewport={{ once: true }}
-        className="grid grid-cols-5 gap-1"
-      >
-        {Array.from({ length: 25 }).map((_, i) => (
-          <div
-            key={i}
-            className={`h-5 w-5 rounded-sm ${
-              [0, 1, 2, 4, 5, 6, 10, 12, 14, 18, 19, 20, 22, 23, 24].includes(i)
-                ? 'bg-electric-yellow'
-                : 'bg-zinc-700'
-            }`}
-          />
-        ))}
-      </motion.div>
-    </div>
-  );
-}
-
-function GlobeVisual() {
-  return (
-    <div className="relative flex h-full items-center justify-center">
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-        className="border-electric-yellow/30 relative h-24 w-24 rounded-full border-2"
-      >
-        <div className="border-electric-yellow/30 absolute top-1/2 left-0 h-0.5 w-full -translate-y-1/2 border-t-2" />
-        <div className="border-electric-yellow/30 absolute inset-x-4 top-1/4 h-12 rounded-full border-2" />
-      </motion.div>
-      {/* Ping markers */}
-      <motion.div
-        className="bg-electric-yellow absolute top-6 left-1/4 h-2 w-2 rounded-full"
-        animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
-        transition={{ duration: 2, repeat: Infinity }}
-      />
-      <motion.div
-        className="bg-cyan absolute right-1/4 bottom-8 h-2 w-2 rounded-full"
-        animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
-        transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-      />
-      <motion.div
-        className="bg-hot-pink absolute top-1/2 right-8 h-2 w-2 rounded-full"
-        animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }}
-        transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-      />
-    </div>
-  );
-}
-
-function TerminalStep({
-  step,
-  command,
-  output,
-  delay,
-}: {
-  step: number;
-  command: string;
-  output: string;
-  delay: number;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: '-50px' });
-
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, x: -20 }}
-      animate={isInView ? { opacity: 1, x: 0 } : {}}
-      transition={{ duration: 0.5, delay }}
-      className="shadow-neo-md rounded-xl border-2 border-zinc-700 bg-zinc-900 p-4"
-    >
-      <div className="mb-3 flex items-center gap-2">
-        <div className="bg-electric-yellow text-charcoal flex h-6 w-6 items-center justify-center rounded text-xs font-bold">
-          {step}
-        </div>
-        <div className="flex gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
-          <div className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
-          <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
-        </div>
-      </div>
-      <div className="font-mono text-sm">
-        <div className="flex items-center gap-2">
-          <span className="text-electric-yellow">$</span>
-          <span className="text-zinc-300">{command}</span>
-          <span className="animate-blink text-electric-yellow">▌</span>
-        </div>
-        <div className="mt-2 text-zinc-500">{output}</div>
-      </div>
-    </motion.div>
-  );
-}
-
-function StatItem({
-  value,
-  label,
-  suffix = '',
-}: {
-  value: number;
-  label: string;
-  suffix?: string;
-}) {
-  return (
-    <div className="text-center">
-      <div className="text-electric-yellow text-3xl font-bold sm:text-4xl">
-        <AnimatedCounter target={value} suffix={suffix} />
-      </div>
-      <div className="mt-1 text-xs tracking-wider text-zinc-500 uppercase">
-        {label}
-      </div>
-    </div>
-  );
-}
-
-function LandingNavbar({ isAuth }: { isAuth: boolean }): React.ReactNode {
-  return (
-    <header className="flex h-20 items-center justify-between">
-      <motion.a
-        href="/"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="flex items-center gap-3"
-      >
-        <Image
-          className="h-8 w-8"
-          src="/images/img_logo.webp"
-          width={500}
-          height={500}
-          alt="Logo Pendek In"
-        />
-        <span className="text-xl font-bold tracking-tight text-white uppercase">
-          Pendek In
-        </span>
-      </motion.a>
-
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="flex items-center gap-3"
-      >
-        {isAuth ? (
-          <Link
-            href="/dashboard"
-            className="bg-electric-yellow text-charcoal shadow-neo-sm hover:shadow-neo-sm-hover animate-pulse-glow inline-flex items-center gap-2 rounded-xl border-2 border-zinc-700 px-5 py-2.5 text-sm font-bold tracking-wide uppercase transition-all duration-100"
-          >
-            Dashboard
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        ) : (
-          <>
-            <Link
-              href="/sign-in"
-              className="link-underline hidden text-sm text-zinc-400 transition-colors hover:text-white sm:block"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/sign-up"
-              className="bg-electric-yellow text-charcoal shadow-neo-sm hover:shadow-neo-sm-hover animate-pulse-glow inline-flex items-center gap-2 rounded-xl border-2 border-zinc-700 px-5 py-2.5 text-sm font-bold tracking-wide uppercase transition-all duration-100"
-            >
-              Try NOw
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </>
-        )}
-      </motion.div>
-    </header>
-  );
-}
+import StatItem from '@/components/landing/stat-item';
+import FeatureCard from '@/components/landing/feature-card';
+import {
+  GlobeVisual,
+  MiniChartVisual,
+  QRCodeVisual,
+} from '@/components/landing/visual';
+import { LandingNavbar } from '@/components/landing/navbar';
+import { getLandingStats, type LandingStats } from '@/lib/analytics';
 
 export default function LandingPage() {
   const [isAuth, setIsAuth] = useState(false);
+  const [stats, setStats] = useState<LandingStats>({
+    totalLinks: 0,
+    totalActiveUsers: 0,
+    totalClicks: 0,
+  });
   const { isAuthenticated } = useAuth();
 
   const setupAuth = useEffectEvent(() => {
@@ -263,6 +42,14 @@ export default function LandingPage() {
   useEffect(() => {
     setupAuth();
   }, [isAuthenticated]);
+
+  useEffect(() => {
+    async function fetchStats() {
+      const data = await getLandingStats();
+      setStats(data);
+    }
+    fetchStats();
+  }, []);
 
   return (
     <div className="bg-charcoal relative min-h-screen overflow-hidden">
@@ -280,7 +67,7 @@ export default function LandingPage() {
         <LandingNavbar isAuth={isAuth} />
 
         {/* Hero Section */}
-        <section className="py-24 md:py-48">
+        <section className="py-24 md:py-36">
           <div className="mx-auto max-w-3xl text-center">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
@@ -314,16 +101,16 @@ export default function LandingPage() {
             </motion.div> */}
 
             {/* Stats ticker */}
-            {/* <motion.div
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
               className="mt-12 flex flex-wrap items-center justify-center gap-8 border-y border-zinc-800 py-6 sm:gap-12"
             >
-              <StatItem value={1247893} label="Links created" />
-              <StatItem value={47000} suffix="+" label="Active users" />
-              <StatItem value={99} suffix="%" label="Uptime" />
-            </motion.div> */}
+              <StatItem value={stats.totalLinks} label="Links created" />
+              <StatItem value={stats.totalActiveUsers} label="Active users" />
+              <StatItem value={stats.totalClicks} label="Total link clicked" />
+            </motion.div>
           </div>
         </section>
 

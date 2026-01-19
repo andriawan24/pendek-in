@@ -10,6 +10,7 @@ import {
   AuthApi,
   LinksApi,
   AnalyticsApi,
+  DashboardApi,
   RedirectApi,
 } from './index';
 
@@ -85,6 +86,7 @@ export function createAuthenticatedConfig(): Configuration {
 // Public API instances (for login/register and redirect)
 export const publicAuthApi = new AuthApi(createPublicConfig());
 export const publicRedirectApi = new RedirectApi(createPublicConfig());
+export const publicDashboardApi = new DashboardApi(createPublicConfig());
 
 // Authenticated API instances (created on-demand to get fresh token)
 export function getAuthApi(): AuthApi {
@@ -97,6 +99,10 @@ export function getLinksApi(): LinksApi {
 
 export function getAnalyticsApi(): AnalyticsApi {
   return new AnalyticsApi(createAuthenticatedConfig());
+}
+
+export function getDashboardApi(): DashboardApi {
+  return new DashboardApi(createAuthenticatedConfig());
 }
 
 export function getRedirectApi(): RedirectApi {

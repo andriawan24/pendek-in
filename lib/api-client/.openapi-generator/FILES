@@ -1,5 +1,6 @@
 apis/AnalyticsApi.ts
 apis/AuthApi.ts
+apis/DashboardApi.ts
 apis/LinksApi.ts
 apis/RedirectApi.ts
 apis/index.ts
@@ -9,6 +10,8 @@ docs/AnalyticsGet200Response.md
 docs/AuthApi.md
 docs/AuthGoogleGet200Response.md
 docs/AuthMeGet200Response.md
+docs/DashboardApi.md
+docs/DashboardStatsGet200Response.md
 docs/LinksAllGet200Response.md
 docs/LinksApi.md
 docs/LinksIdGet200Response.md
@@ -22,6 +25,7 @@ docs/ResponsesAnalyticsResponse.md
 docs/ResponsesBaseResponse.md
 docs/ResponsesDashboardResponse.md
 docs/ResponsesErrorResponse.md
+docs/ResponsesLandingStatsResponse.md
 docs/ResponsesLinkResponse.md
 docs/ResponsesLoginResponse.md
 docs/ResponsesTopLink.md
@@ -32,6 +36,7 @@ models/AnalyticsDashboardGet200Response.ts
 models/AnalyticsGet200Response.ts
 models/AuthGoogleGet200Response.ts
 models/AuthMeGet200Response.ts
+models/DashboardStatsGet200Response.ts
 models/LinksAllGet200Response.ts
 models/LinksIdGet200Response.ts
 models/RequestsInsertLinkParam.ts
@@ -43,6 +48,7 @@ models/ResponsesAnalyticsResponse.ts
 models/ResponsesBaseResponse.ts
 models/ResponsesDashboardResponse.ts
 models/ResponsesErrorResponse.ts
+models/ResponsesLandingStatsResponse.ts
 models/ResponsesLinkResponse.ts
 models/ResponsesLoginResponse.ts
 models/ResponsesTopLink.ts
