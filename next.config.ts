@@ -9,13 +9,25 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'api.fawwaz-api.online',
+        hostname: 'link.fawwaz-api.online',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8080',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '::1',
+        port: '8080',
+        pathname: '/**',
       },
       {
         protocol: 'http',
         hostname: 'localhost',
         port: '8080',
-        pathname: '**',
+        pathname: '/**',
       },
     ],
   },
