@@ -235,69 +235,61 @@ func (r *linkRoutes) DeleteLink(ctx *gin.Context) {
 	utils.ResponsdJson(ctx, http.StatusNoContent, "successfully insert new link", nil)
 }
 
+// RedirectRequest represents forwarded user data from Next.js
+type RedirectRequest struct {
+	IP        string `json:"ip"`
+	UserAgent string `json:"userAgent"`
+	Referer   string `json:"referer"`
+}
+
 // Redirect godoc
 // @Summary      Redirect to original URL
-// @Description  Redirect to the original URL using the short code
+// @Description  Log analytics and return the redirect URL
 // @Tags         Redirect
+// @Accept       json
+// @Produce      json
 // @Param        code   path      string  true  "Short code"
-// @Success      301  {string}  string  "Redirect to original URL"
+// @Param        request body RedirectRequest true "User analytics data"
+// @Success      200  {object}  map[string]string  "redirect_url"
+// @Failure      400  {object}  responses.ErrorResponse
 // @Failure      404  {object}  responses.ErrorResponse
 // @Failure      500  {object}  responses.ErrorResponse
-// @Router       /{code} [get]
+// @Router       /{code} [post]
 func (r *linkRoutes) Redirect(ctx *gin.Context) {
 	code := ctx.Param("code")
 	reqCtx := ctx.Request.Context()
 
-	parser := useragent.NewParser()
-	ua := parser.Parse(ctx.Request.UserAgent())
-
-	deviceType := utils.ParseDeviceType(ua)
-	country := utils.ParseCountryFromIp(ctx.ClientIP())
-	traffic := utils.ParseTrafficSource(ctx.Request.Referer())
-	browser := utils.ParseBrowser(ua)
-
-	param := database.InsertClickLogParams{
-		Code: code,
-		IpAddress: sql.NullString{
-			Valid:  ctx.ClientIP() != "",
-			String: ctx.ClientIP(),
-		},
-		UserAgent: sql.NullString{
-			Valid:  ctx.Request.UserAgent() != "",
-			String: ctx.Request.UserAgent(),
-		},
-		Referrer: sql.NullString{
-			Valid:  ctx.Request.Referer() != "",
-			String: ctx.Request.Referer(),
-		},
-		DeviceType: sql.NullString{
-			Valid:  deviceType != "",
-			String: deviceType,
-		},
-		Country: sql.NullString{
-			Valid:  country != "",
-			String: country,
-		},
-		Traffic: sql.NullString{
-			Valid:  traffic != "",
-			String: traffic,
-		},
-		Browser: sql.NullString{
-			Valid:  browser != "",
-			String: browser,
-		},
+	var req RedirectRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
 	}
 
-	// Try redis
+	parser := useragent.NewParser()
+	ua := parser.Parse(req.UserAgent)
+
+	param := database.InsertClickLogParams{
+		Code:       code,
+		IpAddress:  sql.NullString{Valid: req.IP != "", String: req.IP},
+		UserAgent:  sql.NullString{Valid: req.UserAgent != "", String: req.UserAgent},
+		Referrer:   sql.NullString{Valid: req.Referer != "", String: req.Referer},
+		DeviceType: sql.NullString{Valid: true, String: utils.ParseDeviceType(ua)},
+		Country:    sql.NullString{Valid: true, String: utils.ParseCountryFromIp(req.IP)},
+		Traffic:    sql.NullString{Valid: true, String: utils.ParseTrafficSource(req.Referer)},
+		Browser:    sql.NullString{Valid: true, String: utils.ParseBrowser(ua)},
+	}
+
+	// Try redis cache
 	originalURL, err := r.cacheService.GetURL(reqCtx, code)
 	if err == nil && originalURL != "" {
 		if _, err := r.clickLogService.InsertClickLog(reqCtx, param); err != nil {
 			log.Printf("failed to insert click log (redis hit) for code %s: %v", code, err)
 		}
-		ctx.Redirect(http.StatusMovedPermanently, originalURL)
+		ctx.JSON(http.StatusOK, gin.H{"redirect_url": originalURL})
 		return
 	}
 
+	// Get from database
 	originalURL, err = r.linkService.GetRedirectedLink(reqCtx, code)
 	if err != nil {
 		utils.HandleErrorResponse(ctx, err)
@@ -312,5 +304,5 @@ func (r *linkRoutes) Redirect(ctx *gin.Context) {
 		log.Printf("failed to insert click log (db hit) for code %s: %v", code, err)
 	}
 
-	ctx.Redirect(http.StatusMovedPermanently, originalURL)
+	ctx.JSON(http.StatusOK, gin.H{"redirect_url": originalURL})
 }

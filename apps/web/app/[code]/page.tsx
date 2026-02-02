@@ -1,54 +1,36 @@
 import { redirect, notFound } from 'next/navigation';
+import { headers } from 'next/headers';
 import { isReservedRoute } from '@/lib/config';
 
 interface RedirectPageProps {
-  params: Promise<{
-    code: string;
-  }>;
-}
-
-async function getRedirectUrl(code: string): Promise<string | null> {
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
-
-  try {
-    const response = await fetch(`${apiBaseUrl}/${code}`, {
-      redirect: 'manual',
-      headers: {
-        Accept: 'application/json',
-      },
-    });
-
-    // Handle redirect response (302)
-    if (response.status === 301 || response.status === 302) {
-      const location = response.headers.get('Location');
-      return location;
-    }
-
-    // Handle not found (404)
-    if (response.status === 404) {
-      return null;
-    }
-
-    // Handle other errors
-    return null;
-  } catch {
-    return null;
-  }
+  params: Promise<{ code: string }>;
 }
 
 export default async function RedirectPage({ params }: RedirectPageProps) {
   const { code } = await params;
 
-  // Skip redirect for reserved routes
   if (isReservedRoute(code)) {
     notFound();
   }
 
-  const redirectUrl = await getRedirectUrl(code);
+  const headersList = await headers();
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'}/${code}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ip: headersList.get('x-forwarded-for')?.split(',')[0]?.trim() || '',
+        userAgent: headersList.get('user-agent') || '',
+        referer: headersList.get('referer') || '',
+      }),
+    }
+  );
 
-  if (!redirectUrl) {
+  if (!response.ok) {
     notFound();
   }
 
-  redirect(redirectUrl);
+  const { redirect_url } = await response.json();
+  redirect(redirect_url);
 }

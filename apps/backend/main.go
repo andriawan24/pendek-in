@@ -202,7 +202,7 @@ func registerRoutes(r *gin.Engine, db *sql.DB, queries *database.Queries, rdb *r
 
 	r.Static("/uploads", "./uploads")
 
-	r.GET("/:code", linkRoutes.Redirect)
+	r.POST("/:code", linkRoutes.Redirect)
 	r.GET("/health", healthCheckHandler(db))
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.NoRoute()
