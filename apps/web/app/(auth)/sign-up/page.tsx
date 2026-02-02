@@ -8,6 +8,7 @@ import { LegalLinksLine } from '@/components/legal/legal-links';
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { ApiError } from '@/lib/utils/api-error';
 
 function SignUpPageInner() {
   const router = useRouter();
@@ -52,8 +53,16 @@ function SignUpPageInner() {
       });
 
       router.replace('/dashboard');
-    } catch {
-      setError('An unexpected error occurred. Please try again.');
+    } catch (e) {
+      if (e instanceof ApiError) {
+        if (e.message.includes('duplicate')) {
+          setError('Email is not available');
+        } else {
+          setError('An unexpected error occurred. Please try again.');
+        }
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }

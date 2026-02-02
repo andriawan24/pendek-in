@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/auth';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AuthApiError, capitalizeTitle } from '@/lib/utils';
+import { ApiError } from '@/lib/utils/api-error';
 
 function SignInPageInner() {
   const router = useRouter();
@@ -53,8 +54,10 @@ function SignInPageInner() {
     } catch (err) {
       if (err instanceof AuthApiError) {
         setError(capitalizeTitle(err.message));
+      } else if (err instanceof ApiError && err.message.includes('invalid')) {
+        setError('Invalid email/password');
       } else {
-        setError('An unexpected error occurred. Please try again. ' + err);
+        setError('An unexpected error occurred. Please try again');
       }
     } finally {
       setIsLoading(false);
