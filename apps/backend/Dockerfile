@@ -29,6 +29,9 @@ RUN apk --no-cache add ca-certificates tzdata
 # Copy binary from builder
 COPY --from=builder /app/main .
 
+# Copy sources directory (contains ip2country database)
+COPY --from=builder /app/sources ./sources
+
 # Expose port
 EXPOSE 8080
 
