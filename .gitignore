@@ -71,11 +71,6 @@ coverage.html
 uploads/
 apps/backend/uploads/
 
-# GeoIP database files (download separately)
-apps/backend/internal/sources/
-*.mmdb
-*.csv
-
 # IDE
 .idea/
 *.swp
