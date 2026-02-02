@@ -60,7 +60,7 @@ func main() {
 	defer db.Close()
 
 	queries := database.New(db)
-	router := setupRouter(ctx, db, queries, rdb)
+	router := setupRouter(db, queries, rdb)
 	server := newHTTPServer(router)
 
 	gracefulShutdown(ctx, server)
@@ -120,14 +120,14 @@ func buildConnectionString() string {
 	)
 }
 
-func setupRouter(ctx context.Context, db *sql.DB, queries *database.Queries, rdb *redis.Client) *gin.Engine {
+func setupRouter(db *sql.DB, queries *database.Queries, rdb *redis.Client) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
 	_ = r.SetTrustedProxies(nil)
 
 	r.Use(cors.New(buildCORSConfig()))
 
-	registerRoutes(r, ctx, db, queries, rdb)
+	registerRoutes(r, db, queries, rdb)
 
 	return r
 }
@@ -158,7 +158,7 @@ func parseAllowedOrigins() []string {
 	return origins
 }
 
-func registerRoutes(r *gin.Engine, ctx context.Context, db *sql.DB, queries *database.Queries, rdb *redis.Client) {
+func registerRoutes(r *gin.Engine, db *sql.DB, queries *database.Queries, rdb *redis.Client) {
 	userService := services.NewUserService(queries)
 	linkService := services.NewLinkService(queries)
 	cacheService := services.NewCacheService(rdb)
