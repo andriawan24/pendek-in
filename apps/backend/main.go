@@ -74,7 +74,7 @@ func loadEnv() {
 }
 
 func loadIPDatabase() {
-	if err := ip2country.Load("./internal/sources/dbip-country.csv"); err != nil {
+	if err := ip2country.Load("./sources/dbip-country.csv"); err != nil {
 		log.Fatalf("Failed to load IP country database file: %v", err)
 	}
 }
