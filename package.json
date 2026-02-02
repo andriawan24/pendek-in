@@ -1,48 +1,17 @@
 {
-  "name": "link-short",
-  "version": "0.1.0",
+  "name": "pendek-in",
   "private": true,
+  "packageManager": "pnpm@9.15.0",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "prepare": "husky",
-    "generate-api": "openapi-generator-cli generate -i swagger.yaml -g typescript-fetch -o lib/api-client --additional-properties=supportsES6=true,typescriptThreePlus=true,withInterfaces=true"
-  },
-  "dependencies": {
-    "clsx": "^2.1.1",
-    "d3": "^7.9.0",
-    "date-fns": "^4.1.0",
-    "lucide-react": "^0.562.0",
-    "motion": "^12.25.0",
-    "next": "16.1.1",
-    "qrcode": "^1.5.4",
-    "react": "19.2.3",
-    "react-dom": "19.2.3",
-    "sonner": "^2.0.7",
-    "tailwind-merge": "^3.4.0"
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "@openapitools/openapi-generator-cli": "^2.27.0",
-    "@tailwindcss/postcss": "^4.1.18",
-    "@types/d3": "^7.4.3",
-    "@types/node": "^25.0.6",
-    "@types/qrcode": "^1.5.6",
-    "@types/react": "19.2.8",
-    "@types/react-dom": "19.2.3",
-    "eslint": "^9.39.2",
-    "eslint-config-next": "16.1.1",
-    "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "prettier": "^3.7.4",
-    "prettier-plugin-tailwindcss": "^0.7.2",
-    "tailwindcss": "^4.1.18",
-    "typescript": "^5.9.3"
-  },
-  "overrides": {
-    "@types/react": "19.2.7",
-    "@types/react-dom": "19.2.3"
+    "prettier": "^3.8.1",
+    "turbo": "^2.8.1"
   }
 }
