@@ -19,7 +19,7 @@ function SignUpPageInner() {
   const [error, setError] = useState<string | null>(null);
   const { register } = useAuth();
 
-  async function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.SubmitEvent) {
     e.preventDefault();
 
     setError(null);
@@ -52,7 +52,9 @@ function SignUpPageInner() {
         password,
       });
 
-      router.replace('/dashboard');
+      router.replace(
+        `/verify-email?email=${encodeURIComponent(normalizedEmail)}`
+      );
     } catch (e) {
       if (e instanceof ApiError) {
         if (e.message.includes('duplicate')) {

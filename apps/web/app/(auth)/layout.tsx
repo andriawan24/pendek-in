@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/lib/auth';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function AuthLayout({
@@ -11,12 +11,14 @@ export default function AuthLayout({
 }) {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    // Allow authenticated users on verify-email page
+    if (isAuthenticated && !pathname.startsWith('/verify-email')) {
       router.replace('/dashboard');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, router, pathname]);
 
   return (
     <div className="bg-charcoal relative min-h-dvh w-full overflow-x-hidden">
