@@ -179,6 +179,8 @@ func registerRoutes(r *gin.Engine, db *sql.DB, queries *database.Queries, rdb *r
 		authGroup.POST("/register", authRoutes.Register)
 		authGroup.PUT("/update-profile", middlewares.RequiredAuth(), authRoutes.UpdateProfile)
 		authGroup.GET("/google", authRoutes.GoogleAuth)
+		authGroup.GET("/verify-email", authRoutes.VerifyEmail)
+		authGroup.POST("/resend-verification", middlewares.RequiredAuth(), authRoutes.ResendVerification)
 	}
 
 	linkGroup := r.Group("/links", middlewares.RequiredAuth())

@@ -178,12 +178,22 @@ func (r *authRoutes) Register(ctx *gin.Context) {
 		return
 	}
 
+	token, err := utils.GenerateVerificationEmailToken()
+	if err != nil {
+		utils.HandleErrorResponse(ctx, err)
+		return
+	}
+
 	registerParam := database.InsertUserParams{
 		Name:  param.Name,
 		Email: param.Email,
 		PasswordHash: sql.NullString{
 			String: string(hashedPassword),
 			Valid:  true,
+		},
+		VerificationToken: sql.NullString{
+			String: token,
+			Valid: true,
 		},
 	}
 
@@ -192,6 +202,14 @@ func (r *authRoutes) Register(ctx *gin.Context) {
 		utils.HandleErrorResponse(ctx, err)
 		return
 	}
+
+	// Send verification email in the background
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:3000"
+	}
+	verifyLink := fmt.Sprintf("%s/verify-email?token=%s", frontendURL, token)
+	go utils.SendEmail(param.Email, verifyLink)
 
 	accessToken, accessClaim, err := utils.GenerateJwtToken(user)
 	if err != nil {
@@ -395,22 +413,48 @@ func (r *authRoutes) GoogleAuth(ctx *gin.Context) {
 	user, err := r.userService.FindUserByGoogleID(ctx.Request.Context(), googleUser.ID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			insertParam := database.InsertUserWithGoogleParams{
-				Name:  googleUser.Name,
-				Email: googleUser.Email,
-				GoogleID: sql.NullString{
-					String: googleUser.ID,
-					Valid:  true,
-				},
-				ProfileImageUrl: sql.NullString{
-					String: googleUser.Picture,
-					Valid:  googleUser.Picture != "",
-				},
-			}
+			// Google ID not found — check if a user with this email already exists
+			existingUser, emailErr := r.userService.FindUserByEmail(ctx.Request.Context(), googleUser.Email)
+			if emailErr == nil {
+				// User exists with this email — link Google account to existing user
+				linkParam := database.LinkGoogleToUserParams{
+					GoogleID: sql.NullString{
+						String: googleUser.ID,
+						Valid:  true,
+					},
+					ProfileImageUrl: sql.NullString{
+						String: googleUser.Picture,
+						Valid:  googleUser.Picture != "",
+					},
+					ID: existingUser.ID,
+				}
+				user, err = r.userService.LinkGoogleToUser(ctx.Request.Context(), linkParam)
+				if err != nil {
+					utils.HandleErrorResponse(ctx, err)
+					return
+				}
+			} else if errors.Is(emailErr, sql.ErrNoRows) {
+				// No user with this email — create a new Google user
+				insertParam := database.InsertUserWithGoogleParams{
+					Name:  googleUser.Name,
+					Email: googleUser.Email,
+					GoogleID: sql.NullString{
+						String: googleUser.ID,
+						Valid:  true,
+					},
+					ProfileImageUrl: sql.NullString{
+						String: googleUser.Picture,
+						Valid:  googleUser.Picture != "",
+					},
+				}
 
-			user, err = r.userService.InsertUserWithGoogle(ctx.Request.Context(), insertParam)
-			if err != nil {
-				utils.HandleErrorResponse(ctx, err)
+				user, err = r.userService.InsertUserWithGoogle(ctx.Request.Context(), insertParam)
+				if err != nil {
+					utils.HandleErrorResponse(ctx, err)
+					return
+				}
+			} else {
+				utils.HandleErrorResponse(ctx, emailErr)
 				return
 			}
 		} else {
@@ -447,4 +491,78 @@ func (r *authRoutes) GoogleAuth(ctx *gin.Context) {
 	}
 
 	utils.RespondOK(ctx, "successfully authenticated with Google", response)
+}
+
+func (r *authRoutes) VerifyEmail(ctx *gin.Context) {
+	token := ctx.Query("token")
+
+	if token == "" {
+		utils.RespondBadRequest(ctx, "token is required")
+		return
+	}
+
+	user, err := r.userService.GetUserByToken(ctx, token)
+	if err != nil {
+		utils.HandleErrorResponse(ctx, err)
+		return
+	}
+
+	user, err = r.userService.VerifyUser(ctx, user.ID)
+	if err != nil {
+		utils.HandleErrorResponse(ctx, err)
+		return
+	}
+
+	response := responses.UserResponse{
+		ID:              user.ID,
+		Name:            user.Name,
+		Email:           user.Email,
+		IsActive:        user.IsActive,
+		IsVerified:      user.IsVerified,
+		ProfileImageUrl: user.ProfileImageUrl.String,
+	}
+
+	utils.RespondOK(ctx, "email verified successfully", response)
+}
+
+func (r *authRoutes) ResendVerification(ctx *gin.Context) {
+	userId := ctx.MustGet("user_id").(uuid.UUID)
+
+	user, err := r.userService.GetUserByID(ctx.Request.Context(), userId)
+	if err != nil {
+		utils.HandleErrorResponse(ctx, err)
+		return
+	}
+
+	if user.IsVerified {
+		utils.RespondBadRequest(ctx, "email is already verified")
+		return
+	}
+
+	token, err := utils.GenerateVerificationEmailToken()
+	if err != nil {
+		utils.HandleErrorResponse(ctx, err)
+		return
+	}
+
+	_, err = r.userService.UpdateVerificationToken(ctx.Request.Context(), database.UpdateVerificationTokenParams{
+		VerificationToken: sql.NullString{
+			String: token,
+			Valid:  true,
+		},
+		ID: user.ID,
+	})
+	if err != nil {
+		utils.HandleErrorResponse(ctx, err)
+		return
+	}
+
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:3000"
+	}
+	verifyLink := fmt.Sprintf("%s/verify-email?token=%s", frontendURL, token)
+	go utils.SendEmail(user.Email, verifyLink)
+
+	utils.RespondOK(ctx, "verification email sent", nil)
 }
