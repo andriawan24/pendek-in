@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-ALTER TABLE users ADD COLUMN profile_image_url VARCHAR(500);
+ALTER TABLE users ADD COLUMN profile_image_url VARCHAR(255);
 -- +goose StatementEnd
 
 -- +goose Down
