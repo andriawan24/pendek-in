@@ -14,6 +14,8 @@ import {
   logout as apiLogout,
   loginWithGoogle as apiLoginWithGoogle,
   updateProfile as apiUpdateProfile,
+  verifyEmail as apiVerifyEmail,
+  resendVerification as apiResendVerification,
 } from './api';
 import type { AuthUser, LoginRequestBody, RegisterRequestBody } from './types';
 
@@ -30,6 +32,8 @@ interface AuthContextValue {
   login: (credentials: LoginRequestBody) => Promise<void>;
   register: (data: RegisterRequestBody) => Promise<void>;
   loginWithGoogle: (code: string) => Promise<void>;
+  verifyEmail: (token: string) => Promise<void>;
+  resendVerification: () => Promise<void>;
   updateProfile: (data: UpdateProfileBody) => Promise<void>;
   logout: () => void;
   refreshUser: () => void;
@@ -52,13 +56,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const register = useCallback(async (data: RegisterRequestBody) => {
-    const session = await apiRegister(data);
-    setUser(session.user);
+    await apiRegister(data);
+    // Don't set user here — the sign-up page redirects to /verify-email first.
+    // Setting user would make isAuthenticated true, causing the auth layout
+    // to redirect to /dashboard before the verify-email redirect fires.
   }, []);
 
   const loginWithGoogle = useCallback(async (code: string) => {
     const session = await apiLoginWithGoogle(code);
     setUser(session.user);
+  }, []);
+
+  const verifyEmail = useCallback(async (token: string) => {
+    await apiVerifyEmail(token);
+    const session = sessionManager.getSession();
+    if (session) {
+      setUser({ ...session.user, is_verified: true });
+    }
+  }, []);
+
+  const resendVerification = useCallback(async () => {
+    await apiResendVerification();
   }, []);
 
   const updateProfile = useCallback(async (data: UpdateProfileBody) => {
@@ -88,6 +106,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         loginWithGoogle,
+        verifyEmail,
+        resendVerification,
         updateProfile,
         logout,
         refreshUser,

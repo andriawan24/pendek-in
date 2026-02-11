@@ -277,6 +277,66 @@ export async function updateProfile(body: {
 }
 
 /**
+ * Verify email using verification token
+ */
+export async function verifyEmail(token: string): Promise<void> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
+  const response = await fetch(
+    `${apiUrl}/auth/verify-email?token=${encodeURIComponent(token)}`
+  );
+
+  if (!response.ok) {
+    let errorMessage = 'Email verification failed';
+    try {
+      const data = await response.json();
+      if (data?.message) {
+        errorMessage = data.message;
+      }
+    } catch {
+      // ignore parse errors
+    }
+    throw new AuthApiError(errorMessage, response.status);
+  }
+
+  // Update the session's is_verified status
+  const session = sessionManager.getSession();
+  if (session) {
+    session.user.is_verified = true;
+    sessionManager.saveSession(session);
+  }
+}
+
+/**
+ * Resend verification email
+ */
+export async function resendVerification(): Promise<void> {
+  return withTokenRefresh(async () => {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080';
+    const token = sessionManager.getAccessToken();
+
+    const response = await fetch(`${apiUrl}/auth/resend-verification`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      let errorMessage = 'Failed to resend verification email';
+      try {
+        const data = await response.json();
+        if (data?.message) {
+          errorMessage = data.message;
+        }
+      } catch {
+        // ignore parse errors
+      }
+      throw new AuthApiError(errorMessage, response.status);
+    }
+  });
+}
+
+/**
  * Logout - clear local session
  */
 export async function logout(): Promise<void> {

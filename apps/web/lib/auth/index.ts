@@ -15,6 +15,8 @@ export {
   login,
   register,
   loginWithGoogle,
+  verifyEmail,
+  resendVerification,
   refreshToken,
   getMe,
   withTokenRefresh,
