@@ -13,7 +13,7 @@ import (
 )
 
 const getUser = `-- name: GetUser :one
-SELECT id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url
+SELECT id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url, verification_token, verified_at
 FROM users
 WHERE id = $1 AND deleted_at IS NULL
 `
@@ -33,12 +33,14 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.DeletedAt,
 		&i.GoogleID,
 		&i.ProfileImageUrl,
+		&i.VerificationToken,
+		&i.VerifiedAt,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url
+SELECT id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url, verification_token, verified_at
 FROM users 
 WHERE email = $1 AND deleted_at IS NULL
 `
@@ -58,12 +60,14 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.DeletedAt,
 		&i.GoogleID,
 		&i.ProfileImageUrl,
+		&i.VerificationToken,
+		&i.VerifiedAt,
 	)
 	return i, err
 }
 
 const getUserByGoogleID = `-- name: GetUserByGoogleID :one
-SELECT id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url
+SELECT id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url, verification_token, verified_at
 FROM users
 WHERE google_id = $1 AND deleted_at IS NULL
 `
@@ -83,31 +87,20 @@ func (q *Queries) GetUserByGoogleID(ctx context.Context, googleID sql.NullString
 		&i.DeletedAt,
 		&i.GoogleID,
 		&i.ProfileImageUrl,
+		&i.VerificationToken,
+		&i.VerifiedAt,
 	)
 	return i, err
 }
 
-const insertUser = `-- name: InsertUser :one
-INSERT INTO users(
-    name,
-    email,
-    password_hash
-) VALUES (
-    $1,
-    $2,
-    $3
-)
-RETURNING id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url
+const getUserByToken = `-- name: GetUserByToken :one
+SELECT id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url, verification_token, verified_at
+FROM users
+WHERE verification_token = $1 AND deleted_at IS NULL
 `
 
-type InsertUserParams struct {
-	Name         string
-	Email        string
-	PasswordHash sql.NullString
-}
-
-func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, error) {
-	row := q.db.QueryRowContext(ctx, insertUser, arg.Name, arg.Email, arg.PasswordHash)
+func (q *Queries) GetUserByToken(ctx context.Context, verificationToken sql.NullString) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByToken, verificationToken)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -121,6 +114,93 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 		&i.DeletedAt,
 		&i.GoogleID,
 		&i.ProfileImageUrl,
+		&i.VerificationToken,
+		&i.VerifiedAt,
+	)
+	return i, err
+}
+
+const linkGoogleToUser = `-- name: LinkGoogleToUser :one
+UPDATE users SET google_id = $1, is_verified = true, verified_at = NOW(), profile_image_url = $2
+WHERE id = $3 AND deleted_at IS NULL
+RETURNING id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url, verification_token, verified_at
+`
+
+type LinkGoogleToUserParams struct {
+	GoogleID        sql.NullString
+	ProfileImageUrl sql.NullString
+	ID              uuid.UUID
+}
+
+func (q *Queries) LinkGoogleToUser(ctx context.Context, arg LinkGoogleToUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, linkGoogleToUser,
+		arg.GoogleID,
+		arg.ProfileImageUrl,
+		arg.ID,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.PasswordHash,
+		&i.IsActive,
+		&i.IsVerified,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.GoogleID,
+		&i.ProfileImageUrl,
+		&i.VerificationToken,
+		&i.VerifiedAt,
+	)
+	return i, err
+}
+
+const insertUser = `-- name: InsertUser :one
+INSERT INTO users(
+    name,
+    email,
+    password_hash,
+    verification_token
+) VALUES (
+    $1,
+    $2,
+    $3,
+    $4
+)
+RETURNING id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url, verification_token, verified_at
+`
+
+type InsertUserParams struct {
+	Name              string
+	Email             string
+	PasswordHash      sql.NullString
+	VerificationToken sql.NullString
+}
+
+func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, insertUser,
+		arg.Name,
+		arg.Email,
+		arg.PasswordHash,
+		arg.VerificationToken,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.PasswordHash,
+		&i.IsActive,
+		&i.IsVerified,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.GoogleID,
+		&i.ProfileImageUrl,
+		&i.VerificationToken,
+		&i.VerifiedAt,
 	)
 	return i, err
 }
@@ -139,7 +219,7 @@ INSERT INTO users(
     TRUE,
     $4
 )
-RETURNING id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url
+RETURNING id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url, verification_token, verified_at
 `
 
 type InsertUserWithGoogleParams struct {
@@ -169,6 +249,8 @@ func (q *Queries) InsertUserWithGoogle(ctx context.Context, arg InsertUserWithGo
 		&i.DeletedAt,
 		&i.GoogleID,
 		&i.ProfileImageUrl,
+		&i.VerificationToken,
+		&i.VerifiedAt,
 	)
 	return i, err
 }
@@ -177,7 +259,7 @@ const updateUser = `-- name: UpdateUser :one
 UPDATE users SET
 name = $1, email = $2, password_hash = $3, is_verified = $4, profile_image_url = $5
 WHERE id = $6 AND deleted_at IS NULL
-RETURNING id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url
+RETURNING id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url, verification_token, verified_at
 `
 
 type UpdateUserParams struct {
@@ -211,6 +293,68 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.DeletedAt,
 		&i.GoogleID,
 		&i.ProfileImageUrl,
+		&i.VerificationToken,
+		&i.VerifiedAt,
+	)
+	return i, err
+}
+
+const updateVerificationToken = `-- name: UpdateVerificationToken :one
+UPDATE users SET verification_token = $1
+WHERE id = $2 AND deleted_at IS NULL
+RETURNING id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url, verification_token, verified_at
+`
+
+type UpdateVerificationTokenParams struct {
+	VerificationToken sql.NullString
+	ID                uuid.UUID
+}
+
+func (q *Queries) UpdateVerificationToken(ctx context.Context, arg UpdateVerificationTokenParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, updateVerificationToken,
+		arg.VerificationToken,
+		arg.ID,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.PasswordHash,
+		&i.IsActive,
+		&i.IsVerified,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.GoogleID,
+		&i.ProfileImageUrl,
+		&i.VerificationToken,
+		&i.VerifiedAt,
+	)
+	return i, err
+}
+
+const verifyUser = `-- name: VerifyUser :one
+UPDATE users SET is_verified = true, verified_at = NOW() WHERE id = $1 AND deleted_at IS NULL RETURNING id, name, email, password_hash, is_active, is_verified, created_at, updated_at, deleted_at, google_id, profile_image_url, verification_token, verified_at
+`
+
+func (q *Queries) VerifyUser(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRowContext(ctx, verifyUser, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.PasswordHash,
+		&i.IsActive,
+		&i.IsVerified,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.GoogleID,
+		&i.ProfileImageUrl,
+		&i.VerificationToken,
+		&i.VerifiedAt,
 	)
 	return i, err
 }
