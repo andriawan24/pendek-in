@@ -1,7 +1,7 @@
 # Makefile for Pendek.in URL Shortener
 # ====================================
 
-.PHONY: help install dev build start lint format clean generate-api docker-build docker-up docker-down
+.PHONY: help install dev build start lint format clean generate-api test test-watch
 
 # Default target
 help:
@@ -19,6 +19,10 @@ help:
 	@echo "  lint          Run ESLint"
 	@echo "  format        Format code with Prettier"
 	@echo "  typecheck     Run TypeScript type checking"
+	@echo ""
+	@echo "Testing:"
+	@echo "  test          Run unit tests"
+	@echo "  test-watch    Run tests in watch mode"
 	@echo ""
 	@echo "API Client:"
 	@echo "  generate-api  Generate API client from swagger.yaml"
@@ -58,6 +62,16 @@ format:
 
 typecheck:
 	pnpm exec tsc --noEmit
+
+# ============
+# Testing
+# ============
+
+test:
+	pnpm run test
+
+test-watch:
+	pnpm run test:watch
 
 # ============
 # API Client
