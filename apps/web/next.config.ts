@@ -12,23 +12,12 @@ const nextConfig: NextConfig = {
         hostname: 'link.fawwaz-api.online',
       },
       {
-        protocol: 'http',
-        hostname: '127.0.0.1',
-        port: '8080',
-      },
-      {
-        protocol: 'http',
-        hostname: '::1',
-        port: '8080',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '8080',
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
       },
       {
         protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
+        hostname: 'storage.fawwaz-api.online',
       },
     ],
   },
