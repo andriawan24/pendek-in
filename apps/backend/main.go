@@ -17,6 +17,7 @@ import (
 	"github.com/andriawan24/link-short/internal/middlewares"
 	"github.com/andriawan24/link-short/internal/routes"
 	"github.com/andriawan24/link-short/internal/services"
+	"github.com/andriawan24/link-short/internal/utils"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -58,9 +59,16 @@ func main() {
 	rdb := newRedisClient()
 	db := newPostgresDB(ctx)
 	defer db.Close()
+	defer rdb.Close()
+
+	storageService, err := services.NewStorageService()
+	if err != nil {
+		log.Printf("Warning: Storage service unavailable (%v), using local uploads", err)
+		storageService = nil
+	}
 
 	queries := database.New(db)
-	router := setupRouter(db, queries, rdb)
+	router := setupRouter(db, queries, rdb, storageService)
 	server := newHTTPServer(router)
 
 	gracefulShutdown(ctx, server)
@@ -81,8 +89,8 @@ func loadIPDatabase() {
 
 func newRedisClient() *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr:     getenv("REDIS_ADDR", "localhost:6379"),
-		Password: getenv("REDIS_PASSWORD", ""),
+		Addr:     utils.GetEnv("REDIS_ADDR", "localhost:6379"),
+		Password: utils.GetEnv("REDIS_PASSWORD", ""),
 		DB:       0,
 		Protocol: 2,
 	})
@@ -111,23 +119,23 @@ func newPostgresDB(ctx context.Context) *sql.DB {
 func buildConnectionString() string {
 	return fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-		getenv("DB_HOST", "localhost"),
-		getenv("DB_PORT", "5432"),
-		getenv("DB_USER", "postgres"),
-		getenv("DB_PASSWORD", "postgres"),
-		getenv("DB_NAME", "link-short"),
-		getenv("DB_SSLMODE", "disable"),
+		utils.GetEnv("DB_HOST", "localhost"),
+		utils.GetEnv("DB_PORT", "5432"),
+		utils.GetEnv("DB_USER", "postgres"),
+		utils.GetEnv("DB_PASSWORD", "postgres"),
+		utils.GetEnv("DB_NAME", "link-short"),
+		utils.GetEnv("DB_SSLMODE", "disable"),
 	)
 }
 
-func setupRouter(db *sql.DB, queries *database.Queries, rdb *redis.Client) *gin.Engine {
+func setupRouter(db *sql.DB, queries *database.Queries, rdb *redis.Client, storageService services.StorageService) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
 	_ = r.SetTrustedProxies(nil)
 
 	r.Use(cors.New(buildCORSConfig()))
 
-	registerRoutes(r, db, queries, rdb)
+	registerRoutes(r, db, queries, rdb, storageService)
 
 	return r
 }
@@ -138,13 +146,13 @@ func buildCORSConfig() cors.Config {
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: getenv("CORS_ALLOW_CREDENTIALS", "true") == "true",
+		AllowCredentials: utils.GetEnv("CORS_ALLOW_CREDENTIALS", "true") == "true",
 		MaxAge:           12 * time.Hour,
 	}
 }
 
 func parseAllowedOrigins() []string {
-	corsOrigins := getenv("CORS_ALLOW_ORIGINS", "*")
+	corsOrigins := utils.GetEnv("CORS_ALLOW_ORIGINS", "*")
 	if corsOrigins == "*" {
 		return []string{"*"}
 	}
@@ -158,7 +166,7 @@ func parseAllowedOrigins() []string {
 	return origins
 }
 
-func registerRoutes(r *gin.Engine, db *sql.DB, queries *database.Queries, rdb *redis.Client) {
+func registerRoutes(r *gin.Engine, db *sql.DB, queries *database.Queries, rdb *redis.Client, storageService services.StorageService) {
 	userService := services.NewUserService(queries)
 	linkService := services.NewLinkService(queries)
 	cacheService := services.NewCacheService(rdb)
@@ -167,7 +175,7 @@ func registerRoutes(r *gin.Engine, db *sql.DB, queries *database.Queries, rdb *r
 	dashboardService := services.NewDashboardService(queries)
 
 	linkRoutes := routes.NewLinkRoutes(linkService, clickLogService, cacheService)
-	authRoutes := routes.NewAuthRoutes(userService, oauthService)
+	authRoutes := routes.NewAuthRoutes(userService, oauthService, storageService)
 	analyticRoutes := routes.NewAnalyticRoutes(linkService, clickLogService)
 	dashboardRoutes := routes.NewDashboardRoutes(dashboardService)
 
@@ -226,7 +234,7 @@ func healthCheckHandler(db *sql.DB) gin.HandlerFunc {
 
 func newHTTPServer(handler http.Handler) *http.Server {
 	return &http.Server{
-		Addr:              ":" + getenv("HTTP_PORT", "8080"),
+		Addr:              ":" + utils.GetEnv("HTTP_PORT", "8080"),
 		Handler:           handler,
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
@@ -251,11 +259,4 @@ func startServer(srv *http.Server) {
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("Failed to run server: %v", err)
 	}
-}
-
-func getenv(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return fallback
 }

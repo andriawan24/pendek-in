@@ -1,10 +1,13 @@
 package routes
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -175,6 +178,65 @@ func (m *mockDashboardService) GetLandingStats(ctx context.Context) (responses.L
 	return m.getLandingStats(ctx)
 }
 
+type mockStorageService struct {
+	upload          func(ctx context.Context, key string, body io.Reader, contentType string) (string, error)
+	delete          func(ctx context.Context, key string) error
+	getPresignedURL func(ctx context.Context, key string) (string, error)
+}
+
+func (m *mockStorageService) Upload(ctx context.Context, key string, body io.Reader, contentType string) (string, error) {
+	if m.upload != nil {
+		return m.upload(ctx, key, body, contentType)
+	}
+	return key, nil
+}
+
+func (m *mockStorageService) Delete(ctx context.Context, key string) error {
+	if m.delete != nil {
+		return m.delete(ctx, key)
+	}
+	return nil
+}
+
+func (m *mockStorageService) GetPresignedURL(ctx context.Context, key string) (string, error) {
+	if m.getPresignedURL != nil {
+		return m.getPresignedURL(ctx, key)
+	}
+	if key == "" {
+		return "", nil
+	}
+	if strings.HasPrefix(key, "http://") || strings.HasPrefix(key, "https://") {
+		return key, nil
+	}
+	return "https://garage.example.com/bucket/" + key + "?signed=true", nil
+}
+
+// --- Helper to create multipart form with file for profile image upload ---
+
+func createMultipartProfileRequest(name, email, password string, fileName string, fileContent []byte) *http.Request {
+	body := &bytes.Buffer{}
+	writer := multipart.NewWriter(body)
+
+	if name != "" {
+		_ = writer.WriteField("name", name)
+	}
+	if email != "" {
+		_ = writer.WriteField("email", email)
+	}
+	if password != "" {
+		_ = writer.WriteField("password", password)
+	}
+	if fileName != "" && len(fileContent) > 0 {
+		part, _ := writer.CreateFormFile("profile_image", fileName)
+		_, _ = part.Write(fileContent)
+	}
+
+	writer.Close()
+	req := httptest.NewRequest(http.MethodPut, "/auth/update-profile", body)
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	return req
+}
+
 // --- Helper to inject user_id into gin context (simulates auth middleware) ---
 
 func withAuth(router *gin.Engine, userID uuid.UUID, method, path string, handler gin.HandlerFunc) {
@@ -227,7 +289,7 @@ func TestAuthRoutes_Login_Success(t *testing.T) {
 		}
 		mockOAuth := &mockOAuthService{}
 
-		routes := NewAuthRoutes(mockSvc, mockOAuth)
+		routes := NewAuthRoutes(mockSvc, mockOAuth, nil)
 
 		router := gin.New()
 		router.POST("/auth/login", routes.Login)
@@ -246,7 +308,7 @@ func TestAuthRoutes_Login_Success(t *testing.T) {
 		mockSvc := &mockUserService{}
 		mockOAuth := &mockOAuthService{}
 
-		routes := NewAuthRoutes(mockSvc, mockOAuth)
+		routes := NewAuthRoutes(mockSvc, mockOAuth, nil)
 
 		router := gin.New()
 		router.POST("/auth/login", routes.Login)
@@ -264,7 +326,7 @@ func TestAuthRoutes_Login_Success(t *testing.T) {
 		mockSvc := &mockUserService{}
 		mockOAuth := &mockOAuthService{}
 
-		routes := NewAuthRoutes(mockSvc, mockOAuth)
+		routes := NewAuthRoutes(mockSvc, mockOAuth, nil)
 
 		router := gin.New()
 		router.POST("/auth/login", routes.Login)
@@ -304,7 +366,7 @@ func TestAuthRoutes_Profile(t *testing.T) {
 		}
 		mockOAuth := &mockOAuthService{}
 
-		routes := NewAuthRoutes(mockSvc, mockOAuth)
+		routes := NewAuthRoutes(mockSvc, mockOAuth, nil)
 
 		router := gin.New()
 		withAuth(router, userID, http.MethodGet, "/auth/me", routes.Profile)
@@ -322,7 +384,7 @@ func TestAuthRoutes_Profile(t *testing.T) {
 		assert.Equal(t, "successfully get profile", resp.Message)
 	})
 
-	t.Run("returns error when user not found", func(t *testing.T) {
+		t.Run("returns error when user not found", func(t *testing.T) {
 		mockSvc := &mockUserService{
 			getUserByID: func(ctx context.Context, id uuid.UUID) (database.User, error) {
 				return database.User{}, sql.ErrNoRows
@@ -330,7 +392,7 @@ func TestAuthRoutes_Profile(t *testing.T) {
 		}
 		mockOAuth := &mockOAuthService{}
 
-		routes := NewAuthRoutes(mockSvc, mockOAuth)
+		routes := NewAuthRoutes(mockSvc, mockOAuth, nil)
 
 		router := gin.New()
 		withAuth(router, userID, http.MethodGet, "/auth/me", routes.Profile)
@@ -344,6 +406,183 @@ func TestAuthRoutes_Profile(t *testing.T) {
 	})
 }
 
+func TestAuthRoutes_UpdateProfile(t *testing.T) {
+	t.Setenv("TOKEN_SECRET", "test-access-secret-key-at-least-32-chars!")
+	t.Setenv("REFRESH_TOKEN_SECRET", "test-refresh-secret-key-at-least-32-chars!")
+
+	userID := uuid.New()
+	garageURL := "https://garage.example.com/bucket/profiles/test-uuid.jpg"
+
+	t.Run("updates profile with Garage storage when image uploaded", func(t *testing.T) {
+		mockSvc := &mockUserService{
+			getUserByID: func(ctx context.Context, id uuid.UUID) (database.User, error) {
+				return database.User{
+					ID:         id,
+					Name:       "Old Name",
+					Email:      "old@example.com",
+					IsActive:   true,
+					IsVerified: true,
+				}, nil
+			},
+			updateUser: func(ctx context.Context, param database.UpdateUserParams) (database.User, error) {
+				assert.True(t, param.ProfileImageUrl.Valid)
+				assert.Equal(t, garageURL, param.ProfileImageUrl.String)
+				return database.User{
+					ID:         param.ID,
+					Name:       param.Name,
+					Email:      param.Email,
+					ProfileImageUrl: param.ProfileImageUrl,
+				}, nil
+			},
+		}
+		mockOAuth := &mockOAuthService{}
+		mockStorage := &mockStorageService{
+			upload: func(ctx context.Context, key string, body io.Reader, contentType string) (string, error) {
+				assert.True(t, strings.HasPrefix(key, "profiles/"))
+				assert.True(t, strings.HasSuffix(key, ".jpg"))
+				assert.NotEmpty(t, contentType)
+				return garageURL, nil
+			},
+		}
+
+		routes := NewAuthRoutes(mockSvc, mockOAuth, mockStorage)
+
+		router := gin.New()
+		withAuth(router, userID, http.MethodPut, "/auth/update-profile", routes.UpdateProfile)
+
+		req := createMultipartProfileRequest("", "", "", "photo.jpg", []byte("fake-jpeg-content"))
+		w := httptest.NewRecorder()
+
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+
+		var resp responses.BaseResponse
+		err := json.Unmarshal(w.Body.Bytes(), &resp)
+		require.NoError(t, err)
+		assert.Equal(t, "successfully update profile", resp.Message)
+
+		if data, ok := resp.Data.(map[string]interface{}); ok {
+			assert.Equal(t, garageURL, data["profile_image_url"])
+		}
+	})
+
+	t.Run("returns 500 when Garage storage upload fails", func(t *testing.T) {
+		mockSvc := &mockUserService{
+			getUserByID: func(ctx context.Context, id uuid.UUID) (database.User, error) {
+				return database.User{ID: id, Name: "Test", Email: "test@example.com"}, nil
+			},
+		}
+		mockOAuth := &mockOAuthService{}
+		mockStorage := &mockStorageService{
+			upload: func(ctx context.Context, key string, body io.Reader, contentType string) (string, error) {
+				return "", errors.New("garage connection refused")
+			},
+		}
+
+		routes := NewAuthRoutes(mockSvc, mockOAuth, mockStorage)
+
+		router := gin.New()
+		withAuth(router, userID, http.MethodPut, "/auth/update-profile", routes.UpdateProfile)
+
+		req := createMultipartProfileRequest("", "", "", "photo.png", []byte("fake-png"))
+		w := httptest.NewRecorder()
+
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+	})
+
+	t.Run("updates profile without image when storage is nil", func(t *testing.T) {
+		mockSvc := &mockUserService{
+			getUserByID: func(ctx context.Context, id uuid.UUID) (database.User, error) {
+				return database.User{
+					ID:         id,
+					Name:       "Old",
+					Email:      "old@example.com",
+					IsActive:   true,
+					IsVerified: true,
+				}, nil
+			},
+			updateUser: func(ctx context.Context, param database.UpdateUserParams) (database.User, error) {
+				assert.False(t, param.ProfileImageUrl.Valid)
+				assert.Equal(t, "New Name", param.Name)
+				return database.User{
+					ID:   param.ID,
+					Name: param.Name,
+					Email: param.Email,
+				}, nil
+			},
+		}
+		mockOAuth := &mockOAuthService{}
+
+		routes := NewAuthRoutes(mockSvc, mockOAuth, nil)
+
+		router := gin.New()
+		withAuth(router, userID, http.MethodPut, "/auth/update-profile", routes.UpdateProfile)
+
+		req := createMultipartProfileRequest("New Name", "", "", "", nil)
+		w := httptest.NewRecorder()
+
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("rejects invalid file type when storage is available", func(t *testing.T) {
+		mockSvc := &mockUserService{
+			getUserByID: func(ctx context.Context, id uuid.UUID) (database.User, error) {
+				return database.User{ID: id, Name: "Test", Email: "test@example.com"}, nil
+			},
+		}
+		mockOAuth := &mockOAuthService{}
+		mockStorage := &mockStorageService{}
+
+		routes := NewAuthRoutes(mockSvc, mockOAuth, mockStorage)
+
+		router := gin.New()
+		withAuth(router, userID, http.MethodPut, "/auth/update-profile", routes.UpdateProfile)
+
+		req := createMultipartProfileRequest("", "", "", "document.pdf", []byte("fake-pdf"))
+		w := httptest.NewRecorder()
+
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+
+		var resp responses.BaseResponse
+		_ = json.Unmarshal(w.Body.Bytes(), &resp)
+		assert.Contains(t, resp.Message, "invalid file type")
+	})
+
+	t.Run("rejects file exceeding 5MB when storage is available", func(t *testing.T) {
+		mockSvc := &mockUserService{
+			getUserByID: func(ctx context.Context, id uuid.UUID) (database.User, error) {
+				return database.User{ID: id, Name: "Test", Email: "test@example.com"}, nil
+			},
+		}
+		mockOAuth := &mockOAuthService{}
+		mockStorage := &mockStorageService{}
+
+		routes := NewAuthRoutes(mockSvc, mockOAuth, mockStorage)
+
+		router := gin.New()
+		withAuth(router, userID, http.MethodPut, "/auth/update-profile", routes.UpdateProfile)
+
+		oversized := make([]byte, 6<<20) // 6MB
+		req := createMultipartProfileRequest("", "", "", "large.jpg", oversized)
+		w := httptest.NewRecorder()
+
+		router.ServeHTTP(w, req)
+
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+
+		var resp responses.BaseResponse
+		_ = json.Unmarshal(w.Body.Bytes(), &resp)
+		assert.Contains(t, resp.Message, "5MB")
+	})
+}
+
 func TestAuthRoutes_VerifyEmail(t *testing.T) {
 	userID := uuid.New()
 
@@ -351,7 +590,7 @@ func TestAuthRoutes_VerifyEmail(t *testing.T) {
 		mockSvc := &mockUserService{}
 		mockOAuth := &mockOAuthService{}
 
-		routes := NewAuthRoutes(mockSvc, mockOAuth)
+		routes := NewAuthRoutes(mockSvc, mockOAuth, nil)
 
 		router := gin.New()
 		router.GET("/auth/verify-email", routes.VerifyEmail)
@@ -372,7 +611,7 @@ func TestAuthRoutes_VerifyEmail(t *testing.T) {
 		}
 		mockOAuth := &mockOAuthService{}
 
-		routes := NewAuthRoutes(mockSvc, mockOAuth)
+		routes := NewAuthRoutes(mockSvc, mockOAuth, nil)
 
 		router := gin.New()
 		router.GET("/auth/verify-email", routes.VerifyEmail)
@@ -406,7 +645,7 @@ func TestAuthRoutes_VerifyEmail(t *testing.T) {
 		}
 		mockOAuth := &mockOAuthService{}
 
-		routes := NewAuthRoutes(mockSvc, mockOAuth)
+		routes := NewAuthRoutes(mockSvc, mockOAuth, nil)
 
 		router := gin.New()
 		router.GET("/auth/verify-email", routes.VerifyEmail)
@@ -441,7 +680,7 @@ func TestAuthRoutes_ResendVerification(t *testing.T) {
 		}
 		mockOAuth := &mockOAuthService{}
 
-		routes := NewAuthRoutes(mockSvc, mockOAuth)
+		routes := NewAuthRoutes(mockSvc, mockOAuth, nil)
 
 		router := gin.New()
 		withAuth(router, userID, http.MethodPost, "/auth/resend-verification", routes.ResendVerification)
@@ -470,7 +709,7 @@ func TestAuthRoutes_ResendVerification(t *testing.T) {
 		}
 		mockOAuth := &mockOAuthService{}
 
-		routes := NewAuthRoutes(mockSvc, mockOAuth)
+		routes := NewAuthRoutes(mockSvc, mockOAuth, nil)
 
 		router := gin.New()
 		withAuth(router, userID, http.MethodPost, "/auth/resend-verification", routes.ResendVerification)

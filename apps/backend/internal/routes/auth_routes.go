@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -21,12 +22,14 @@ import (
 type authRoutes struct {
 	userService  services.UserService
 	oauthService services.OAuthService
+	storageService services.StorageService
 }
 
-func NewAuthRoutes(userService services.UserService, oauthService services.OAuthService) authRoutes {
+func NewAuthRoutes(userService services.UserService, oauthService services.OAuthService, storageService services.StorageService) authRoutes {
 	return authRoutes{
 		userService:  userService,
 		oauthService: oauthService,
+		storageService: storageService,
 	}
 }
 
@@ -90,7 +93,7 @@ func (r *authRoutes) Login(ctx *gin.Context) {
 			Email:           user.Email,
 			IsActive:        user.IsActive,
 			IsVerified:      user.IsVerified,
-			ProfileImageUrl: user.ProfileImageUrl.String,
+			ProfileImageUrl: r.resolveProfileImageURL(ctx.Request.Context(), user.ProfileImageUrl.String),
 		},
 	}
 
@@ -234,7 +237,7 @@ func (r *authRoutes) Register(ctx *gin.Context) {
 			Email:           user.Email,
 			IsActive:        user.IsActive,
 			IsVerified:      user.IsVerified,
-			ProfileImageUrl: user.ProfileImageUrl.String,
+			ProfileImageUrl: r.resolveProfileImageURL(ctx.Request.Context(), user.ProfileImageUrl.String),
 		},
 	}
 
@@ -267,7 +270,7 @@ func (r *authRoutes) Profile(ctx *gin.Context) {
 		Email:           user.Email,
 		IsActive:        user.IsActive,
 		IsVerified:      user.IsVerified,
-		ProfileImageUrl: user.ProfileImageUrl.String,
+		ProfileImageUrl: r.resolveProfileImageURL(ctx.Request.Context(), user.ProfileImageUrl.String),
 	}
 
 	utils.RespondOK(ctx, "successfully get profile", response)
@@ -320,7 +323,7 @@ func (r *authRoutes) UpdateProfile(ctx *gin.Context) {
 	}
 
 	file, err := ctx.FormFile("profile_image")
-	if err == nil && file != nil {
+	if err == nil && file != nil && r.storageService != nil {
 		ext := strings.ToLower(filepath.Ext(file.Filename))
 		allowedExts := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".gif": true}
 		if !allowedExts[ext] {
@@ -334,21 +337,22 @@ func (r *authRoutes) UpdateProfile(ctx *gin.Context) {
 			return
 		}
 
-		uploadDir := "uploads/profiles"
-		if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		opened, _ := file.Open()
+		defer opened.Close()
+
+		key := "profiles/" + uuid.NewString() + ext
+		contentType := file.Header.Get("Content-Type")
+		if contentType == "" {
+			contentType = "image/" + strings.TrimPrefix(ext, ".")
+		}
+
+		url, err := r.storageService.Upload(ctx.Request.Context(), key, opened, contentType)
+		if err != nil {
 			utils.HandleErrorResponse(ctx, err)
 			return
 		}
 
-		filename := fmt.Sprintf("%s%s", uuid.New().String(), ext)
-		filePath := filepath.Join(uploadDir, filename)
-
-		if err := ctx.SaveUploadedFile(file, filePath); err != nil {
-			utils.HandleErrorResponse(ctx, err)
-			return
-		}
-
-		user.ProfileImageUrl.String = "/" + filePath
+		user.ProfileImageUrl.String = url
 		user.ProfileImageUrl.Valid = true
 	}
 
@@ -373,7 +377,7 @@ func (r *authRoutes) UpdateProfile(ctx *gin.Context) {
 		Email:           updatedUser.Email,
 		IsActive:        updatedUser.IsActive,
 		IsVerified:      updatedUser.IsVerified,
-		ProfileImageUrl: updatedUser.ProfileImageUrl.String,
+		ProfileImageUrl: r.resolveProfileImageURL(ctx.Request.Context(), updatedUser.ProfileImageUrl.String),
 	}
 
 	utils.RespondOK(ctx, "successfully update profile", response)
@@ -486,11 +490,25 @@ func (r *authRoutes) GoogleAuth(ctx *gin.Context) {
 			Email:           user.Email,
 			IsActive:        user.IsActive,
 			IsVerified:      user.IsVerified,
-			ProfileImageUrl: user.ProfileImageUrl.String,
+			ProfileImageUrl: r.resolveProfileImageURL(ctx.Request.Context(), user.ProfileImageUrl.String),
 		},
 	}
 
 	utils.RespondOK(ctx, "successfully authenticated with Google", response)
+}
+
+// resolveProfileImageURL converts a stored profile image value into an accessible URL.
+// External URLs (Google avatars) pass through unchanged. Garage object keys get a
+// time-limited presigned URL. Returns "" when the input is empty or storage is nil.
+func (r *authRoutes) resolveProfileImageURL(ctx context.Context, raw string) string {
+	if raw == "" || r.storageService == nil {
+		return raw
+	}
+	url, err := r.storageService.GetPresignedURL(ctx, raw)
+	if err != nil {
+		return raw
+	}
+	return url
 }
 
 func (r *authRoutes) VerifyEmail(ctx *gin.Context) {
@@ -519,7 +537,7 @@ func (r *authRoutes) VerifyEmail(ctx *gin.Context) {
 		Email:           user.Email,
 		IsActive:        user.IsActive,
 		IsVerified:      user.IsVerified,
-		ProfileImageUrl: user.ProfileImageUrl.String,
+		ProfileImageUrl: r.resolveProfileImageURL(ctx.Request.Context(), user.ProfileImageUrl.String),
 	}
 
 	utils.RespondOK(ctx, "email verified successfully", response)
