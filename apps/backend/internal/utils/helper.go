@@ -3,6 +3,7 @@ package utils
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"os"
 )
 
 func GetOrElse[T any](arg *T, defaultValue T) T {
@@ -20,4 +21,11 @@ func GenerateVerificationEmailToken() (string, error) {
 	}
 
 	return hex.EncodeToString(bytes), nil
+}
+
+func GetEnv(key, fallback string) string {
+	if v := os.Getenv(key); v != "" {
+		return v
+	}
+	return fallback
 }
