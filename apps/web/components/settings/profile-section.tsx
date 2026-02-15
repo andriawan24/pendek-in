@@ -19,6 +19,13 @@ const ALLOWED_IMAGE_TYPES = [
 ];
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
+async function sha256Hex(message: string): Promise<string> {
+  const msgUint8 = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 export function ProfileSection() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -32,6 +39,7 @@ export function ProfileSection() {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
+  const [isFetchingGravatar, setIsFetchingGravatar] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user, updateProfile, resendVerification } = useAuth();
@@ -109,6 +117,52 @@ export function ProfileSection() {
       );
     } finally {
       setIsResending(false);
+    }
+  };
+
+  const handleGetFromGravatar = async () => {
+    if (!email) {
+      toast.error('No email address available');
+      return;
+    }
+
+    setIsFetchingGravatar(true);
+    try {
+      const hash = await sha256Hex(email.trim().toLowerCase());
+      const gravatarUrl = `https://gravatar.com/avatar/${hash}?s=256&d=404`;
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const response = await fetch(gravatarUrl, { signal: controller.signal });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error('No Gravatar found for this email address');
+      }
+
+      const blob = await response.blob();
+
+      if (blob.size > MAX_FILE_SIZE) {
+        throw new Error('Gravatar image exceeds 5MB limit');
+      }
+
+      const file = new File([blob], 'gravatar.jpg', { type: blob.type });
+      setSelectedImage(file);
+      const previewUrl = URL.createObjectURL(blob);
+      setImagePreview(previewUrl);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        toast.error('Gravatar request timed out. Please try again.');
+      } else {
+        toast.error(
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch Gravatar image'
+        );
+      }
+    } finally {
+      setIsFetchingGravatar(false);
     }
   };
 
@@ -197,13 +251,24 @@ export function ProfileSection() {
                   </Button>
                 </div>
               ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  Change Avatar
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Change Avatar
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleGetFromGravatar}
+                    isLoading={isFetchingGravatar}
+                    disabled={!email || isUploadingImage}
+                  >
+                    Get From Gravatar
+                  </Button>
+                </div>
               )}
             </div>
           </div>
