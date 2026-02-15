@@ -7,9 +7,11 @@
 .PHONY: backend-sqlc backend-swagger backend-deps backend-tidy
 .PHONY: migrate-up migrate-down migrate-status migrate-reset migrate-create
 .PHONY: backend-setup backend-ci backend-build-all
+.PHONY: cli-build cli-test cli-lint cli-fmt cli-tidy cli-clean cli-install
 
-# Backend directory
+# Directories
 BACKEND_DIR=apps/backend
+CLI_DIR=apps/cli
 
 # Default target
 help:
@@ -47,6 +49,14 @@ help:
 	@echo "  migrate-reset     Rollback all migrations"
 	@echo "  migrate-create    Create migration (name=migration_name)"
 	@echo ""
+	@echo "CLI:"
+	@echo "  cli-build         Build CLI binary"
+	@echo "  cli-test          Run CLI tests"
+	@echo "  cli-lint          Run CLI linter"
+	@echo "  cli-fmt           Format CLI code"
+	@echo "  cli-tidy          Tidy CLI Go modules"
+	@echo "  cli-install       Install CLI binary to GOPATH"
+	@echo ""
 	@echo "Code Quality:"
 	@echo "  lint              Run linters (ESLint + golangci-lint)"
 	@echo "  lint-fix          Run ESLint with auto-fix"
@@ -70,6 +80,7 @@ help:
 install:
 	pnpm install
 	cd $(BACKEND_DIR) && go mod download
+	cd $(CLI_DIR) && go mod download
 
 dev:
 	@echo "Starting web and backend servers..."
@@ -84,6 +95,7 @@ dev-backend:
 build:
 	pnpm turbo run build
 	cd $(BACKEND_DIR) && $(MAKE) build
+	cd $(CLI_DIR) && $(MAKE) build
 
 build-web:
 	pnpm turbo run build --filter=@pendek-in/web
@@ -154,6 +166,31 @@ migrate-create:
 	cd $(BACKEND_DIR) && $(MAKE) migrate-create name=$(name)
 
 # ============
+# CLI
+# ============
+
+cli-build:
+	cd $(CLI_DIR) && $(MAKE) build
+
+cli-test:
+	cd $(CLI_DIR) && $(MAKE) test
+
+cli-lint:
+	cd $(CLI_DIR) && $(MAKE) lint
+
+cli-fmt:
+	cd $(CLI_DIR) && $(MAKE) fmt
+
+cli-tidy:
+	cd $(CLI_DIR) && $(MAKE) tidy
+
+cli-clean:
+	cd $(CLI_DIR) && $(MAKE) clean
+
+cli-install:
+	cd $(CLI_DIR) && $(MAKE) install
+
+# ============
 # Code Quality
 # ============
 
@@ -196,6 +233,7 @@ clean:
 	rm -rf apps/web/out
 	rm -rf apps/backend/bin
 	rm -rf apps/backend/tmp
+	rm -rf apps/cli/bin
 	rm -rf .turbo
 	rm -rf apps/*/.turbo
 	rm -rf packages/*/.turbo

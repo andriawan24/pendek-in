@@ -34,6 +34,12 @@ export function LandingNavbar({ isAuth }: LandingNavbarProps): React.ReactNode {
         animate={{ opacity: 1, x: 0 }}
         className="flex items-center gap-3"
       >
+        <Link
+          href="/cli"
+          className="link-underline hidden text-sm text-zinc-400 transition-colors hover:text-white sm:block"
+        >
+          CLI
+        </Link>
         {isAuth ? (
           <Link
             href="/dashboard"

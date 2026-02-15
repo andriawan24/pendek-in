@@ -14,6 +14,7 @@ import {
   Scissors,
   Shield,
   Smartphone,
+  Terminal,
   Zap,
 } from 'lucide-react';
 import StatItem from '@/components/landing/stat-item';
@@ -23,6 +24,7 @@ import {
   MiniChartVisual,
   QRCodeVisual,
 } from '@/components/landing/visual';
+import { TerminalStep } from '@/components/landing/terminal-step';
 import { LandingNavbar } from '@/components/landing/navbar';
 import { getLandingStats, type LandingStats } from '@/lib/analytics';
 
@@ -342,8 +344,82 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* CLI CTA Section */}
+        <section className="py-8 md:py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="shadow-neo-xl relative overflow-hidden rounded-3xl border-2 border-zinc-700 bg-zinc-900 p-8 sm:p-12"
+          >
+            <div className="stripe-pattern pointer-events-none absolute inset-0 opacity-10" />
+
+            <div className="relative flex flex-col items-center gap-8 lg:flex-row lg:items-start lg:gap-12">
+              <div className="flex-1 text-center lg:text-left">
+                <div className="bg-electric-yellow/10 border-electric-yellow/30 mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm">
+                  <Terminal className="text-electric-yellow h-4 w-4" />
+                  <span className="text-electric-yellow font-medium">
+                    New: CLI Tool
+                  </span>
+                </div>
+                <h2 className="text-3xl font-bold text-white sm:text-4xl">
+                  Shorten links from
+                  <br />
+                  <span className="text-electric-yellow">your terminal</span>
+                </h2>
+                <p className="mt-4 max-w-md text-zinc-400">
+                  A powerful CLI built with Go. Shorten URLs, manage links, and
+                  view analytics without leaving your terminal.
+                </p>
+                <div className="mt-6">
+                  <Link
+                    href="/cli"
+                    className="bg-electric-yellow text-charcoal shadow-neo-sm hover:shadow-neo-sm-hover inline-flex items-center gap-2 rounded-xl border-2 border-zinc-700 px-6 py-3 font-bold tracking-wide uppercase transition-all duration-100"
+                  >
+                    View CLI Docs
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              </div>
+
+              <div className="w-full max-w-md flex-1">
+                <div className="rounded-xl border-2 border-zinc-700 bg-zinc-800 p-4">
+                  <div className="mb-3 flex items-center gap-1.5">
+                    <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
+                    <div className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
+                    <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                  </div>
+                  <div className="space-y-3 font-mono text-sm">
+                    <div>
+                      <span className="text-electric-yellow">$ </span>
+                      <span className="text-zinc-300">
+                        pendek shorten https://example.com
+                      </span>
+                    </div>
+                    <div className="text-zinc-500">✓ pendek.in/x7k9m2</div>
+                    <div className="border-t border-zinc-700 pt-3">
+                      <span className="text-electric-yellow">$ </span>
+                      <span className="text-zinc-300">pendek list</span>
+                    </div>
+                    <div className="text-zinc-500">✓ 3 links found</div>
+                    <div className="border-t border-zinc-700 pt-3">
+                      <span className="text-electric-yellow">$ </span>
+                      <span className="text-zinc-300">
+                        pendek stats --range 7d
+                      </span>
+                    </div>
+                    <div className="text-zinc-500">
+                      ✓ 1,247 clicks | 12 active links
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </section>
+
         {/* How it works - Terminal style */}
-        {/* <section className="py-20">
+        <section className="py-8 md:py-20">
           <div className="text-center">
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -360,31 +436,47 @@ export default function LandingPage() {
               transition={{ delay: 0.1 }}
               className="mx-auto mt-4 max-w-lg text-zinc-400"
             >
-              Three simple steps to start tracking your links.
+              Three simple steps from your terminal.
             </motion.p>
           </div>
 
           <div className="mx-auto mt-12 grid max-w-3xl gap-6">
             <TerminalStep
               step={1}
-              command="Pendek In shorten https://my-very-long-url.com/path"
-              output="→ pendek.in/x7k9m2"
+              command="pendek shorten https://my-very-long-url.com/path"
+              output="✓ URL shortened successfully!  →  pendek.in/x7k9m2"
               delay={0}
             />
             <TerminalStep
               step={2}
-              command="Pendek In share x7k9m2"
-              output="→ Link copied to clipboard"
+              command="pendek share x7k9m2"
+              output="✓ Copied to clipboard: pendek.in/x7k9m2"
               delay={0.15}
             />
             <TerminalStep
               step={3}
-              command="Pendek In stats x7k9m2"
-              output="→ 1,247 clicks | 32 countries | 89% mobile"
+              command="pendek stats --range 30d"
+              output="✓ Analytics  2025-01-01 to 2025-01-30  |  1,247 clicks"
               delay={0.3}
             />
           </div>
-        </section> */}
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="mt-8 text-center"
+          >
+            <Link
+              href="/cli"
+              className="text-electric-yellow link-underline inline-flex items-center gap-1.5 text-sm font-medium"
+            >
+              View full CLI docs
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </motion.div>
+        </section>
 
         {/* CTA Section */}
         {!isAuth && (
@@ -429,6 +521,10 @@ export default function LandingPage() {
             </div>
 
             <div className="flex items-center gap-6 text-sm text-zinc-500">
+              <Link href="/cli" className="link-underline hover:text-white">
+                CLI
+              </Link>
+              <span className="text-zinc-700">|</span>
               <Link
                 href={isAuth ? '/dashboard' : '/sign-in'}
                 className="link-underline hover:text-white"
